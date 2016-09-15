@@ -29,35 +29,35 @@ public class TestForwardPropagation {
 		// Connections
 		// 1 - 4
 		Connection c = new Connection(n1, n4, 0.2);
-		n1.getOutput().add(c);
+		n1.getOutputs().add(c);
 		n4.getInputs().add(c);
 		// 1 - 5
 		c = new Connection(n1, n5, -0.3);
-		n1.getOutput().add(c);
+		n1.getOutputs().add(c);
 		n5.getInputs().add(c);
 		// 2 - 4
 		c = new Connection(n2, n4, 0.4);
-		n2.getOutput().add(c);
+		n2.getOutputs().add(c);
 		n4.getInputs().add(c);		
 		// 2 - 5
 		c = new Connection(n2, n5, 0.1);
-		n2.getOutput().add(c);
+		n2.getOutputs().add(c);
 		n5.getInputs().add(c);		
 		// 3 - 4
 		c = new Connection(n3, n4, -0.5);
-		n3.getOutput().add(c);
+		n3.getOutputs().add(c);
 		n4.getInputs().add(c);		
 		// 3 - 5
 		c = new Connection(n3, n5, 0.2);
-		n3.getOutput().add(c);
+		n3.getOutputs().add(c);
 		n5.getInputs().add(c);		
 		// 4 - 6
 		c = new Connection(n4, n6, -0.3);
-		n4.getOutput().add(c);
+		n4.getOutputs().add(c);
 		n6.getInputs().add(c);		
 		// 5 - 6
 		c = new Connection(n5, n6, -0.2);
-		n5.getOutput().add(c);
+		n5.getOutputs().add(c);
 		n6.getInputs().add(c);		
 		
 		inputLayer.add(n1);

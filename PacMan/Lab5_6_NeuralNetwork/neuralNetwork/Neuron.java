@@ -6,18 +6,24 @@ public class Neuron {
 	private ArrayList<Connection> inputs;
 	private ArrayList<Connection> outputs;
 	private ActivationFunction activation;
+	private double preActivationValue;
 	private double value;
 	private double bias;
 	private boolean updatedValue;
+	private double error;
+	private double deltaBias;
 	
 	public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, ActivationFunction activation) {
 		super();
 		this.inputs = inputs;
 		this.outputs = outputs;
 		this.activation = activation;
+		this.preActivationValue = 0;
 		this.value = 0;
 		this.bias = 0;
 		this.updatedValue = false;
+		this.error = 0;
+		this.deltaBias = 0;
 	}
 	
 	public Neuron(ActivationFunction activation) {
@@ -25,9 +31,12 @@ public class Neuron {
 		this.inputs = new ArrayList<Connection>();
 		this.outputs = new ArrayList<Connection>();
 		this.activation = activation;
+		this.preActivationValue = 0;
 		this.value = 0;
 		this.bias = 0;
 		this.updatedValue = false;
+		this.error = 0;
+		this.deltaBias = 0;
 	}
 
 	public double evaluate() {
@@ -41,6 +50,8 @@ public class Neuron {
 			}
 			// Plus bias
 			input += bias;
+			// Save input
+			preActivationValue = input;
 			// Filtered by activation function
 			value = activation.value(input);
 			// Set flag
@@ -100,12 +111,36 @@ public class Neuron {
 		this.updatedValue = updatedValue;
 	}
 
-	public ArrayList<Connection> getOutput() {
+	public ArrayList<Connection> getOutputs() {
 		return outputs;
 	}
 
-	public void setOutput(ArrayList<Connection> outputs) {
+	public void setOutputs(ArrayList<Connection> outputs) {
 		this.outputs = outputs;
+	}
+
+	public double getPreActivationValue() {
+		return preActivationValue;
+	}
+
+	public void setPreActivationValue(double preActivationValue) {
+		this.preActivationValue = preActivationValue;
+	}
+
+	public double getError() {
+		return error;
+	}
+
+	public void setError(double error) {
+		this.error = error;
+	}
+
+	public double getDeltaBias() {
+		return deltaBias;
+	}
+
+	public void setDeltaBias(double deltaBias) {
+		this.deltaBias = deltaBias;
 	}
 	
 	

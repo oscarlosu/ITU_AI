@@ -22,6 +22,10 @@ public class NeuralNetwork {
 	}
 	
 	public ArrayList<Double> Evaluate(ArrayList<Double> inputValues) {
+		// Mark cached neuron values as old
+		for(Neuron n: input) {
+			n.PropagateUpdatedValueStatus(false);
+		}
 		// Initialize input layer
 		for(int i = 0; i < inputValues.size(); ++i) {
 			input.get(i).setValue(inputValues.get(i));

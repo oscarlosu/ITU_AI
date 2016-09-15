@@ -8,6 +8,7 @@ public class Neuron {
 	private ActivationFunction activation;
 	private double value;
 	private double bias;
+	private boolean updatedValue;
 	
 	public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> output, ActivationFunction activation) {
 		super();
@@ -16,6 +17,7 @@ public class Neuron {
 		this.activation = activation;
 		this.value = 0;
 		this.bias = 0;
+		this.updatedValue = false;
 	}
 	
 	public Neuron(ActivationFunction activation) {
@@ -25,11 +27,12 @@ public class Neuron {
 		this.activation = activation;
 		this.value = 0;
 		this.bias = 0;
+		this.updatedValue = false;
 	}
 
 	public double evaluate() {
 		// Neurons without input connections are input neurons and it's value should be set manually
-		if(inputs != null || inputs.size() > 0) {
+		if(inputs != null && inputs.size() > 0 && !updatedValue) {
 			double input = 0;
 			// Weighted sum of input neurons
 			for(int i = 0; i < inputs.size(); ++i) {
@@ -40,8 +43,21 @@ public class Neuron {
 			input += bias;
 			// Filtered by activation function
 			value = activation.value(input);
+			// Set flag
+			updatedValue = true;
 		}		
 		return value;
+	}
+	
+	public void PropagateUpdatedValueStatus(boolean updatedValue) {
+		// Set own
+		this.updatedValue = updatedValue;
+		// Recursively propagate through output connections
+		if(output != null) {
+			for(Connection c : output) {
+				c.getTo().PropagateUpdatedValueStatus(updatedValue);
+			}
+		}		
 	}
 
 	public ArrayList<Connection> getInputs() {
@@ -74,6 +90,14 @@ public class Neuron {
 
 	public void setBias(double bias) {
 		this.bias = bias;
+	}
+
+	public boolean isUpdatedValue() {
+		return updatedValue;
+	}
+
+	public void setUpdatedValue(boolean updatedValue) {
+		this.updatedValue = updatedValue;
 	}
 	
 }

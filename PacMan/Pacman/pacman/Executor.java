@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Random;
+
+import behaviourTree.controller.BTController;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
@@ -22,7 +24,6 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
-import pacman.entries.pacman.BehaviourTreeController;
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -66,10 +67,10 @@ public class Executor
 		//exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 		//exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 		//exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
-		BehaviourTreeController controller = new BehaviourTreeController();
+		BTController controller = new BTController();
 		controller.ReadFromFile("bt.config");
 		controller.WriteToFile("savedBt.config");
-		exec.runGameTimed(controller,new StarterGhosts(),visual);	
+		exec.runGameTimed(controller,new StarterGhosts(),visual);
 		
 		//*/
 		

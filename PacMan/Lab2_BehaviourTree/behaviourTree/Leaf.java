@@ -2,7 +2,7 @@ package behaviourTree;
 
 import java.util.HashMap;
 
-import pacman.entries.pacman.BehaviourTreeController;
+import behaviourTree.controller.BTController;
 
 public abstract class Leaf implements Node {
 	protected HashMap<String, Object> context;

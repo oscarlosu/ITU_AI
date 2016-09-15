@@ -1,4 +1,4 @@
-package pacman.entries.pacman;
+package behaviourTree.controller;
 
 import java.io.File;
 import java.io.FileReader;
@@ -30,13 +30,13 @@ import pacman.game.Game;
  * fill in the getAction() method. Any additional classes you write should either
  * be placed in this package or sub-packages (e.g., game.entries.pacman.mypackage).
  */
-public class BehaviourTreeController extends Controller<MOVE>
+public class BTController extends Controller<MOVE>
 {	
 	private HashMap<String, Object> context;
 	
 	public Node bt = null;
 	
-	public BehaviourTreeController() {
+	public BTController() {
 		super();
 		context = new HashMap<String, Object>();
 		context.put("move", MOVE.NEUTRAL);		

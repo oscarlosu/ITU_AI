@@ -5,7 +5,7 @@ import java.util.Random;
 
 import behaviourTree.Leaf;
 import behaviourTree.Node;
-import pacman.entries.pacman.BehaviourTreeController;
+import behaviourTree.controller.BTController;
 
 public class ArtificialEvolution {
 	private int eliteSize;
@@ -15,7 +15,7 @@ public class ArtificialEvolution {
 	// Initialization params
 	private float addNodeChance = 0.25f;
 	
-	private ArrayList<BehaviourTreeController> population;
+	private ArrayList<BTController> population;
 	
 	public ArtificialEvolution(int eliteSize, int offspringSize) {
 		this.eliteSize = eliteSize;
@@ -25,14 +25,14 @@ public class ArtificialEvolution {
 	}
 	
 	private void InitializePopulation() {
-		population = new ArrayList<BehaviourTreeController>();
+		population = new ArrayList<BTController>();
 		for(int i = 0; i < populationSize; ++i) {
-			BehaviourTreeController bt = CreateRandomBTC();
+			BTController bt = CreateRandomBTC();
 		}
 	}
 	
-	private BehaviourTreeController CreateRandomBTC() {
-		BehaviourTreeController controller = new BehaviourTreeController();
+	private BTController CreateRandomBTC() {
+		BTController controller = new BTController();
 		Random rng = new Random();
 		// Add nodes (at least one)
 		do {
@@ -43,7 +43,7 @@ public class ArtificialEvolution {
 	
 
 	
-	private int Fitness(BehaviourTreeController bt) {
+	private int Fitness(BTController bt) {
 		return 0;
 	}
 	

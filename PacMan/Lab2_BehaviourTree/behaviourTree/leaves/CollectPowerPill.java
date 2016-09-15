@@ -14,7 +14,6 @@ public class CollectPowerPill extends Leaf {
 	}
 	@Override
 	public NodeState Process() {
-		System.out.println("collect power pill");
 		Game game = (Game)context.get("game");
 		// Get next move on path to power pill
 		int powerPillNode = (int)context.get("nearestPowerPill");

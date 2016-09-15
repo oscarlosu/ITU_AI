@@ -7,7 +7,7 @@ import java.util.HashMap;
 import behaviourTree.Leaf;
 import behaviourTree.Node;
 import behaviourTree.NodeState;
-import pacman.entries.pacman.BehaviourTreeController;
+import behaviourTree.controller.BTController;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Game;

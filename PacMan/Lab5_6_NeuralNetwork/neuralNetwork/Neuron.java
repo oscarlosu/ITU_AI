@@ -4,16 +4,16 @@ import java.util.ArrayList;
 
 public class Neuron {
 	private ArrayList<Connection> inputs;
-	private ArrayList<Connection> output;
+	private ArrayList<Connection> outputs;
 	private ActivationFunction activation;
 	private double value;
 	private double bias;
 	private boolean updatedValue;
 	
-	public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> output, ActivationFunction activation) {
+	public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, ActivationFunction activation) {
 		super();
 		this.inputs = inputs;
-		this.output = output;
+		this.outputs = outputs;
 		this.activation = activation;
 		this.value = 0;
 		this.bias = 0;
@@ -23,7 +23,7 @@ public class Neuron {
 	public Neuron(ActivationFunction activation) {
 		super();
 		this.inputs = new ArrayList<Connection>();
-		this.output = new ArrayList<Connection>();
+		this.outputs = new ArrayList<Connection>();
 		this.activation = activation;
 		this.value = 0;
 		this.bias = 0;
@@ -53,8 +53,8 @@ public class Neuron {
 		// Set own
 		this.updatedValue = updatedValue;
 		// Recursively propagate through output connections
-		if(output != null) {
-			for(Connection c : output) {
+		if(outputs != null) {
+			for(Connection c : outputs) {
 				c.getTo().PropagateUpdatedValueStatus(updatedValue);
 			}
 		}		
@@ -99,5 +99,15 @@ public class Neuron {
 	public void setUpdatedValue(boolean updatedValue) {
 		this.updatedValue = updatedValue;
 	}
+
+	public ArrayList<Connection> getOutput() {
+		return outputs;
+	}
+
+	public void setOutput(ArrayList<Connection> outputs) {
+		this.outputs = outputs;
+	}
+	
+	
 	
 }

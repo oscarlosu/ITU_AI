@@ -66,8 +66,11 @@ public class Executor
 		//exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 		//exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 		//exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
+		BehaviourTreeController controller = new BehaviourTreeController();
+		controller.ReadFromFile("bt.config");
+		controller.WriteToFile("savedBt.config");
+		exec.runGameTimed(controller,new StarterGhosts(),visual);	
 		
-		exec.runGameTimed(new BehaviourTreeController(40, 20, 3),new StarterGhosts(),visual);	
 		//*/
 		
 		/*

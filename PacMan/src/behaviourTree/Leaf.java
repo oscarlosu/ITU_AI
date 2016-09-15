@@ -10,4 +10,5 @@ public abstract class Leaf implements Node {
 	public void Init(HashMap<String, Object> context) {
 		this.context = context;
 	}
+	
 }

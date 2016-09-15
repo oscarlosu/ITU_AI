@@ -1,11 +1,8 @@
 package behaviourTree;
 
-public class Inverter implements Node {
+public class Inverter implements NodeParent {
 	private Node child;
 	
-	public Inverter(Node child) {
-		this.child = child;
-	}
 	@Override
 	public NodeState Process() {
 		if(child.Process() == NodeState.SUCCESS) {
@@ -13,5 +10,17 @@ public class Inverter implements Node {
 		} else {
 			return NodeState.SUCCESS;
 		}		
+	}
+	@Override
+	public void AddChild(Node n) {
+		child = n;
+	}
+	@Override
+	public Node GetChild(int index) {
+		return child;
+	}
+	@Override
+	public int ChildCount() {
+		return 1;
 	}
 }

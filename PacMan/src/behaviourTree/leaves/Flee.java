@@ -20,44 +20,7 @@ public class Flee extends Leaf {
 	}
 	@Override
 	public NodeState Process() {		
-		System.out.println("flee: ");
-		Game game = (Game)context.get("game");
-		// Get next node on path away from ghost
-		int pacmanNode = game.getPacmanCurrentNodeIndex();
-		ArrayList<GhostDist> threats = (ArrayList<GhostDist>)context.get("threats");
-		for(GhostDist gd : threats) {
-			System.out.println(gd.ghost + " " + gd.distance);
-		}
-
-		// Try to avoid ghost paths to pacman	
-		ArrayList<Integer> good = NonObstructedNeighbours(game, threats);
-		MOVE move;
-		if(false && good.size() > 0) {		
-			// Score results and move to best
-			int best = 0;
-			float bestScore = Float.MIN_VALUE;
-			for(int i = 0; i < good.size(); ++i) {
-				float score = GetFleeNodeScore(threats, game, good.get(i));
-				if(score > bestScore) {
-					bestScore = score;
-					best = i;
-				}
-			}
-			move = game.getNextMoveTowardsTarget(pacmanNode, good.get(best), DM.PATH);
-		} else {
-			// Estimate which node takes pacman further from ghosts
-			int searchDepth = (int)context.get("searchDepth");
-
-			FleeNode pacman = new FleeNode(pacmanNode, null);
-			pacman.score = GetFleeNodeScore(threats, game, pacmanNode);
-			FleeNode target = GetBestNeighbour(game, pacman, searchDepth, threats);
-			// Go backwards until we reach a node adjacent to pacman
-			while(target.previous != null && target.previous.index != pacmanNode) {
-				target = target.previous;
-			}
-			move = game.getNextMoveTowardsTarget(pacmanNode, target.index, DM.PATH);
-		}
-		System.out.println("Chosen " + move);
+		MOVE move = FindBestNeighbour();
 		context.put("move", move);
 		return NodeState.SUCCESS;
 	}
@@ -80,6 +43,50 @@ public class Flee extends Leaf {
 				return 1;
 			}
 		}
+	}
+	
+	private MOVE AvoidGhostPaths() {
+		Game game = (Game)context.get("game");
+		// Get next node on path away from ghost
+		int pacmanNode = game.getPacmanCurrentNodeIndex();
+		ArrayList<GhostDist> threats = (ArrayList<GhostDist>)context.get("threats");
+		
+		// Try to avoid ghost paths to pacman	
+		ArrayList<Integer> good = NonObstructedNeighbours(game, threats);
+		MOVE move = MOVE.NEUTRAL;
+		if(good.size() > 0) {		
+			// Score results and move to best
+			int best = 0;
+			float bestScore = Float.MIN_VALUE;
+			for(int i = 0; i < good.size(); ++i) {
+				float score = GetFleeNodeScore(threats, game, good.get(i));
+				if(score > bestScore) {
+					bestScore = score;
+					best = i;
+				}
+			}
+			move = game.getNextMoveTowardsTarget(pacmanNode, good.get(best), DM.PATH);
+		}
+		return move;
+	}
+
+	private MOVE FindBestNeighbour() {
+		Game game = (Game)context.get("game");
+		// Get next node on path away from ghost
+		int pacmanNode = game.getPacmanCurrentNodeIndex();
+		ArrayList<GhostDist> threats = (ArrayList<GhostDist>)context.get("threats");
+		// Estimate which node takes pacman further from ghosts
+		int searchDepth = (int)context.get("searchDepth");
+
+		FleeNode pacman = new FleeNode(pacmanNode, null);
+		pacman.score = GetFleeNodeScore(threats, game, pacmanNode);
+		FleeNode target = GetBestNeighbour(game, pacman, searchDepth, threats);
+		// Go backwards until we reach a node adjacent to pacman
+		while(target.previous != null && target.previous.index != pacmanNode) {
+			target = target.previous;
+		}
+		MOVE move = game.getNextMoveTowardsTarget(pacmanNode, target.index, DM.PATH);
+		return move;
 	}
 	
 	private ArrayList<Integer> NonObstructedNeighbours(Game game, ArrayList<GhostDist> threats) {

@@ -2,7 +2,7 @@ package behaviourTree;
 
 import java.util.ArrayList;
 
-public class Sequence implements Node {
+public class Sequence implements NodeParent {
 	private ArrayList<Node> children;
 	
 	public Sequence() {
@@ -22,4 +22,13 @@ public class Sequence implements Node {
 		return NodeState.SUCCESS;
 	}
 
+	@Override
+	public Node GetChild(int index) {
+		return children.get(index);
+	}
+
+	@Override
+	public int ChildCount() {
+		return children.size();
+	}
 }

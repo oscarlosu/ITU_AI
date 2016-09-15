@@ -2,7 +2,7 @@ package behaviourTree;
 
 import java.util.ArrayList;
 
-public class Selector implements Node {
+public class Selector implements NodeParent {
 	private ArrayList<Node> children;
 	
 	public Selector() {
@@ -20,5 +20,15 @@ public class Selector implements Node {
 			}
 		}
 		return NodeState.FAILURE;
+	}
+	
+	@Override
+	public Node GetChild(int index) {
+		return children.get(index);
+	}
+
+	@Override
+	public int ChildCount() {
+		return children.size();
 	}
 }

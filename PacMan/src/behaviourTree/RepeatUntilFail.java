@@ -2,7 +2,7 @@ package behaviourTree;
 
 import java.util.ArrayList;
 
-public class RepeatUntilFail implements Node {
+public class RepeatUntilFail implements NodeParent {
 	private ArrayList<Node> children;
 	
 	public RepeatUntilFail() {
@@ -21,5 +21,15 @@ public class RepeatUntilFail implements Node {
 			}
 		}
 		return NodeState.FAILURE;
+	}
+
+	@Override
+	public Node GetChild(int index) {
+		return children.get(index);
+	}
+
+	@Override
+	public int ChildCount() {
+		return children.size();
 	}
 }

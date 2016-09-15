@@ -4,6 +4,7 @@ public class Connection {
 	private Neuron from;
 	private Neuron to;
 	private double weight;
+	private double delta_weight;
 	
 	
 
@@ -12,6 +13,7 @@ public class Connection {
 		this.from = from;
 		this.to = to;
 		this.weight = weight;
+		this.delta_weight = 0;
 	}
 
 	public Neuron getFrom() {
@@ -37,5 +39,15 @@ public class Connection {
 	public void setWeight(double weight) {
 		this.weight = weight;
 	}
+
+	public double getDelta_weight() {
+		return delta_weight;
+	}
+
+	public void setDelta_weight(double delta_weight) {
+		this.delta_weight = delta_weight;
+	}
+	
+	
 	
 }

@@ -4,13 +4,15 @@ import java.util.ArrayList;
 
 public class Neuron {
 	private ArrayList<Connection> inputs;
+	private ArrayList<Connection> output;
 	private ActivationFunction activation;
 	private double value;
 	private double bias;
 	
-	public Neuron(ArrayList<Connection> inputs, ActivationFunction activation) {
+	public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> output, ActivationFunction activation) {
 		super();
 		this.inputs = inputs;
+		this.output = output;
 		this.activation = activation;
 		this.value = 0;
 		this.bias = 0;
@@ -19,6 +21,7 @@ public class Neuron {
 	public Neuron(ActivationFunction activation) {
 		super();
 		this.inputs = new ArrayList<Connection>();
+		this.output = new ArrayList<Connection>();
 		this.activation = activation;
 		this.value = 0;
 		this.bias = 0;

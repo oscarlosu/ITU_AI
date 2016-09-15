@@ -1,15 +1,19 @@
+package neuralNetwork;
+
 import java.util.ArrayList;
 
 public class Neuron {
 	private ArrayList<Connection> inputs;
 	private ActivationFunction activation;
 	private double value;
+	private double bias;
 	
 	public Neuron(ArrayList<Connection> inputs, ActivationFunction activation) {
 		super();
 		this.inputs = inputs;
 		this.activation = activation;
 		this.value = 0;
+		this.bias = 0;
 	}
 	
 	public Neuron(ActivationFunction activation) {
@@ -17,16 +21,22 @@ public class Neuron {
 		this.inputs = new ArrayList<Connection>();
 		this.activation = activation;
 		this.value = 0;
+		this.bias = 0;
 	}
 
 	public double evaluate() {
+		// Neurons without input connections are input neurons and it's value should be set manually
 		if(inputs != null || inputs.size() > 0) {
-			double sum = 0;
+			double input = 0;
+			// Weighted sum of input neurons
 			for(int i = 0; i < inputs.size(); ++i) {
 				Connection c = inputs.get(i);
-				sum += c.getWeight() * c.getFrom().evaluate();
+				input += c.getWeight() * c.getFrom().evaluate();
 			}
-			value = activation.value(sum);
+			// Plus bias
+			input += bias;
+			// Filtered by activation function
+			value = activation.value(input);
 		}		
 		return value;
 	}
@@ -53,6 +63,14 @@ public class Neuron {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public double getBias() {
+		return bias;
+	}
+
+	public void setBias(double bias) {
+		this.bias = bias;
 	}
 	
 }

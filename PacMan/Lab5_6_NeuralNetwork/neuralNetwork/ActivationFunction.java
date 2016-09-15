@@ -1,3 +1,4 @@
+package neuralNetwork;
 
 public interface ActivationFunction {
 	public abstract double value(double x);

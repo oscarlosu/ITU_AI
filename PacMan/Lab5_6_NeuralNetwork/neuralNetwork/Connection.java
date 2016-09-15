@@ -1,3 +1,4 @@
+package neuralNetwork;
 
 public class Connection {
 	private Neuron from;

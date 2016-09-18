@@ -7,9 +7,23 @@ import neuralNetwork.Connection;
 import neuralNetwork.NeuralNetwork;
 import neuralNetwork.Neuron;
 import neuralNetwork.Sigmoid;
+import training.Backpropagation;
+import training.TrainingTuple;
+import training.WeightUpdateMode;
 
-public class TestForwardPropagation {
+public class Tester {
 	public static void main(String[] args) {
+		
+		NeuralNetwork nn = BuildExampleNN();
+		// Forward propagation
+		System.out.println("Forward propagation");
+		Evaluate(nn);
+		// Backpropagation
+		System.out.println("Backpropagation");
+		Train(nn);
+	}
+	
+	public static NeuralNetwork BuildExampleNN() {
 		NeuralNetwork nn = new NeuralNetwork();
 		ArrayList<Neuron> hiddenLayer = nn.getHidden();
 		ArrayList<Neuron> inputLayer = nn.getInput();
@@ -69,7 +83,10 @@ public class TestForwardPropagation {
 		
 		outputLayer.add(n6);
 		
-		
+		return nn;
+	}
+	
+	public static void Evaluate(NeuralNetwork nn) {
 		ArrayList<Double> inputValues = new ArrayList<Double>();
 		inputValues.add(1.0);
 		inputValues.add(0.0);
@@ -77,5 +94,24 @@ public class TestForwardPropagation {
 		System.out.println("Input: " + inputValues);
 		ArrayList<Double> outputValues = nn.Evaluate(inputValues);
 		System.out.println("Output: " + outputValues);
+	}
+	
+	public static void Train(NeuralNetwork nn) {
+		Backpropagation trainer = new Backpropagation(WeightUpdateMode.CaseUpdate, 1, 0);
+		// Training data
+		ArrayList<TrainingTuple> data = new ArrayList<TrainingTuple>();
+		// Tuple 1
+		// Input
+		ArrayList<Double> inputValues = new ArrayList<Double>();
+		inputValues.add(1.0);
+		inputValues.add(0.0);
+		inputValues.add(1.0);
+		// Output
+		ArrayList<Double> outputValues = new ArrayList<Double>();
+		outputValues.add(1.0);
+		
+		data.add(new TrainingTuple(inputValues, outputValues));
+		// Train
+		trainer.train(nn, data , 0.9);
 	}
 }

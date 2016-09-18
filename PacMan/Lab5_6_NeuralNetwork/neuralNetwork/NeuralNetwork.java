@@ -4,22 +4,22 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class NeuralNetwork {
-	private ArrayList<Neuron> input;
-	private ArrayList<Neuron> output;
-	private ArrayList<Neuron> hidden;
+	private ArrayList<Neuron> inputLayer;
+	private ArrayList<Neuron> outputLayer;
+	private ArrayList<Neuron> hiddenLayer;
 	
 	public NeuralNetwork(ArrayList<Neuron> input, ArrayList<Neuron> output, ArrayList<Neuron> hidden) {
 		super();
-		this.input = input;
-		this.output = output;
-		this.hidden = hidden;
+		this.inputLayer = input;
+		this.outputLayer = output;
+		this.hiddenLayer = hidden;
 	}
 
 	public NeuralNetwork() {
 		super();
-		input = new ArrayList<Neuron>();
-		output = new ArrayList<Neuron>();
-		hidden = new ArrayList<Neuron>();
+		inputLayer = new ArrayList<Neuron>();
+		outputLayer = new ArrayList<Neuron>();
+		hiddenLayer = new ArrayList<Neuron>();
 	}
 	
 	public void InitializeRandomFullyConnected(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
@@ -29,32 +29,32 @@ public class NeuralNetwork {
 		for(int i = 0; i < inputLayerSize; ++i) {
 			Neuron n = new Neuron(af);
 			n.setBias((rng.nextDouble() * 2) - 1);
-			input.add(n);
+			inputLayer.add(n);
 		}
 		// Hidden layer
 		for(int i = 0; i < hiddenLayerSize; ++i) {
 			Neuron n = new Neuron(af);
 			n.setBias((rng.nextDouble() * 2) - 1);
-			hidden.add(n);
+			hiddenLayer.add(n);
 		}
 		// Output layer
 		for(int i = 0; i < outputLayerSize; ++i) {
 			Neuron n = new Neuron(af);
 			n.setBias((rng.nextDouble() * 2) - 1);
-			output.add(n);
+			outputLayer.add(n);
 		}
 		// Connections
 		// Input - Hidden
-		for(Neuron from: input) {
-			for(Neuron to: hidden) {
+		for(Neuron from: inputLayer) {
+			for(Neuron to: hiddenLayer) {
 				Connection c = new Connection(from, to, (rng.nextDouble() * 2) - 1);
 				from.getOutputs().add(c);
 				to.getInputs().add(c);
 			}
 		}
 		// Hidden - Output
-		for(Neuron from: hidden) {
-			for(Neuron to: output) {
+		for(Neuron from: hiddenLayer) {
+			for(Neuron to: outputLayer) {
 				Connection c = new Connection(from, to, (rng.nextDouble() * 2) - 1);
 				from.getOutputs().add(c);
 				to.getInputs().add(c);
@@ -64,42 +64,42 @@ public class NeuralNetwork {
 	
 	public ArrayList<Double> Evaluate(ArrayList<Double> inputValues) {
 		// Mark cached neuron values as old
-		for(Neuron n: input) {
+		for(Neuron n: inputLayer) {
 			n.PropagateUpdatedValueStatus(false);
 		}
 		// Initialize input layer
-		for(int i = 0; i < inputValues.size(); ++i) {
-			input.get(i).setValue(inputValues.get(i));
+		for(int i = 0; i < inputLayer.size(); ++i) {
+			inputLayer.get(i).setValue(inputValues.get(i));
 		}
 		// Evaluate recursively from output layer
 		ArrayList<Double> outputValues = new ArrayList<Double>();
-		for(Neuron o: output) {
+		for(Neuron o: outputLayer) {
 			outputValues.add(o.evaluate());
 		}
 		return outputValues;
 	}
 
 	public ArrayList<Neuron> getInput() {
-		return input;
+		return inputLayer;
 	}
 
 	public void setInput(ArrayList<Neuron> input) {
-		this.input = input;
+		this.inputLayer = input;
 	}
 
 	public ArrayList<Neuron> getOutput() {
-		return output;
+		return outputLayer;
 	}
 
 	public void setOutput(ArrayList<Neuron> output) {
-		this.output = output;
+		this.outputLayer = output;
 	}
 
 	public ArrayList<Neuron> getHidden() {
-		return hidden;
+		return hiddenLayer;
 	}
 
 	public void setHidden(ArrayList<Neuron> hidden) {
-		this.hidden = hidden;
+		this.hiddenLayer = hidden;
 	}
 }

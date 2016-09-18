@@ -56,7 +56,9 @@ public class Neuron {
 			value = activation.value(input);
 			// Set flag
 			updatedValue = true;
-		}		
+			System.out.println(value);
+		}
+		
 		return value;
 	}
 	

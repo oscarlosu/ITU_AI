@@ -26,14 +26,15 @@ public class Backpropagation {
 			terminate = true;
 			for(TrainingTuple tuple: data) {
 				// Propagate inputs forward
-				ArrayList<Double> outputValues = nn.Evaluate(tuple.inputValues);
+				ArrayList<Double> outputValues = nn.Evaluate(tuple.getInputValues());
 				// Backpropagate errors
 				// Output layer
 				for(int i = 0; i < nn.getOutput().size(); ++i) {
 					// Compute error
 					Neuron n = nn.getOutput().get(i);
-					double error = n.getActivation().derivative(n.getPreActivationValue()) * (tuple.outputValues.get(i) - n.getValue());
+					double error = n.getActivation().derivative(n.getPreActivationValue()) * (tuple.getOutputValues().get(i) - n.getValue());
 					n.setError(error);
+					System.out.println("error " + error);
 				}
 				// Hidden layer
 				for(Neuron n: nn.getHidden()) {
@@ -44,6 +45,7 @@ public class Backpropagation {
 					}
 					double error = n.getActivation().derivative(n.getPreActivationValue()) * outputErrorSum;
 					n.setError(error);
+					System.out.println("error " + error);
 				}
 				// Update weights
 				// Input - Hidden
@@ -55,6 +57,7 @@ public class Backpropagation {
 						// Update now if update mode is Case Update
 						if(updateMode == WeightUpdateMode.CaseUpdate) {
 							c.setWeight(c.getWeight() + deltaWeight);
+							System.out.println("new weight " + c.getWeight());
 						}
 					}
 				}
@@ -67,6 +70,7 @@ public class Backpropagation {
 						// Update now if update mode is Case Update
 						if(updateMode == WeightUpdateMode.CaseUpdate) {
 							c.setWeight(c.getWeight() + deltaWeight);
+							System.out.println("new weight " + c.getWeight());
 						}
 					}
 				}
@@ -76,6 +80,7 @@ public class Backpropagation {
 					n.setDeltaBias(deltaBias);
 					if(updateMode == WeightUpdateMode.CaseUpdate) {
 						n.setBias(n.getBias() + deltaBias);
+						System.out.println("new bias " + n.getBias());
 					}
 				}
 				for(Neuron n: nn.getHidden()) {
@@ -83,6 +88,7 @@ public class Backpropagation {
 					n.setDeltaBias(deltaBias);
 					if(updateMode == WeightUpdateMode.CaseUpdate) {
 						n.setBias(n.getBias() + deltaBias);
+						System.out.println("new bias " + n.getBias());
 					}
 				}
 				for(Neuron n: nn.getOutput()) {
@@ -90,6 +96,7 @@ public class Backpropagation {
 					n.setDeltaBias(deltaBias);
 					if(updateMode == WeightUpdateMode.CaseUpdate) {
 						n.setBias(n.getBias() + deltaBias);
+						System.out.println("new bias " + n.getBias());
 					}
 				}				
 			}
@@ -100,6 +107,7 @@ public class Backpropagation {
 				for(Neuron n: nn.getInput()) {
 					for(Connection c: n.getOutputs()) {
 						c.setWeight(c.getWeight() + c.getDeltaWeight());
+						System.out.println("new weight " + c.getWeight());
 						if(c.getDeltaWeight() > deltaWeightTerminationThreshold) {
 							terminate = false;
 						}
@@ -109,6 +117,7 @@ public class Backpropagation {
 				for(Neuron n: nn.getHidden()) {
 					for(Connection c: n.getOutputs()) {
 						c.setWeight(c.getWeight() + c.getDeltaWeight());
+						System.out.println("new weight " + c.getWeight());
 						if(c.getDeltaWeight() > deltaWeightTerminationThreshold) {
 							terminate = false;
 						}
@@ -118,12 +127,15 @@ public class Backpropagation {
 				// Update bias
 				for(Neuron n: nn.getInput()) {
 					n.setBias(n.getBias() + n.getDeltaBias());
+					System.out.println("new bias " + n.getBias());
 				}
 				for(Neuron n: nn.getHidden()) {
 					n.setBias(n.getBias() + n.getDeltaBias());
+					System.out.println("new bias " + n.getBias());
 				}
 				for(Neuron n: nn.getOutput()) {
 					n.setBias(n.getBias() + n.getDeltaBias());
+					System.out.println("new bias " + n.getBias());
 				}	
 			}
 			// Check termination conditions

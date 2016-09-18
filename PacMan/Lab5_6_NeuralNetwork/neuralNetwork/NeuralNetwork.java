@@ -28,7 +28,8 @@ public class NeuralNetwork {
 		// Input layer
 		for(int i = 0; i < inputLayerSize; ++i) {
 			Neuron n = new Neuron(af);
-			n.setBias((rng.nextDouble() * 2) - 1);
+			//n.setBias((rng.nextDouble() * 2) - 1);
+			n.setBias(0);
 			inputLayer.add(n);
 		}
 		// Hidden layer

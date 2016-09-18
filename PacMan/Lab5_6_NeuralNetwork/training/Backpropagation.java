@@ -75,14 +75,14 @@ public class Backpropagation {
 					}
 				}
 				// Update bias				
-				for(Neuron n: nn.getInput()) {
-					double deltaBias = (learningRate / (double)epoch) * n.getError();
-					n.setDeltaBias(deltaBias);
-					if(updateMode == WeightUpdateMode.CaseUpdate) {
-						n.setBias(n.getBias() + deltaBias);
-						System.out.println("new bias " + n.getBias());
-					}
-				}
+//				for(Neuron n: nn.getInput()) {
+//					double deltaBias = (learningRate / (double)epoch) * n.getError();
+//					n.setDeltaBias(deltaBias);
+//					if(updateMode == WeightUpdateMode.CaseUpdate) {
+//						n.setBias(n.getBias() + deltaBias);
+//						System.out.println("new bias " + n.getBias());
+//					}
+//				}
 				for(Neuron n: nn.getHidden()) {
 					double deltaBias = (learningRate / (double)epoch) * n.getError();
 					n.setDeltaBias(deltaBias);
@@ -125,10 +125,10 @@ public class Backpropagation {
 				}
 				
 				// Update bias
-				for(Neuron n: nn.getInput()) {
-					n.setBias(n.getBias() + n.getDeltaBias());
-					System.out.println("new bias " + n.getBias());
-				}
+//				for(Neuron n: nn.getInput()) {
+//					n.setBias(n.getBias() + n.getDeltaBias());
+//					System.out.println("new bias " + n.getBias());
+//				}
 				for(Neuron n: nn.getHidden()) {
 					n.setBias(n.getBias() + n.getDeltaBias());
 					System.out.println("new bias " + n.getBias());

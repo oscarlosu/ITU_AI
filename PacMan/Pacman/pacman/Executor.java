@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import behaviourTree.controller.BTController;
+import dataRecording.DataCollectorController;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
@@ -66,11 +67,13 @@ public class Executor
 		boolean visual=true;
 		//exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 		//exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-		//exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
+		//exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);
+		
+		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(),visual);
 		BTController controller = new BTController();
 		controller.ReadFromFile("bt.config");
 		controller.WriteToFile("savedBt.config");
-		exec.runGameTimed(controller,new StarterGhosts(),visual);
+		//exec.runGameTimed(controller,new StarterGhosts(),visual);
 		
 		//*/
 		

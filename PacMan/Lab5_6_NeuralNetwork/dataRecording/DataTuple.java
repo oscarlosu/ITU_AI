@@ -9,15 +9,6 @@ import pacman.game.internal.Node;
 
 public class DataTuple {
 	
-	private class Position {
-		public double x;
-		public double y;
-		public Position(double x, double y) {
-			this.x = x;
-			this.y = y;
-		}
-	}
-	
 	public MOVE DirectionChosen;
 	
 	//General game state info - not normalized!
@@ -71,6 +62,9 @@ public class DataTuple {
 	public double sueX;
 	public double sueY;
 	
+	public double nearestPillDist;
+	public double nearestPowerPillDist;
+	
 	// Empirically observed bounds for positions
 	public static final int MIN_X=0;
 	public static final int MAX_X=108;
@@ -96,32 +90,32 @@ public class DataTuple {
 		this.mazeIndex = normalizeLevel(game.getMazeIndex());
 		this.currentLevel = normalizeLevel(game.getCurrentLevel());
 		int pacmanIndex = game.getPacmanCurrentNodeIndex();
-		this.pacmanIndex = normalizeIndex(pacmanIndex);
+		this.pacmanIndex = normalizeIndex(pacmanIndex, this.numberOfNodesInLevel);
 		this.pacmanLivesLeft = normalizeLives(game.getPacmanNumberOfLivesRemaining());
 		this.currentScore = normalizeCurrentScore(game.getScore());
 		this.totalGameTime = normalizeTotalGameTime(game.getTotalTime());
 		this.currentLevelTime = normalizeCurrentLevelTime(game.getCurrentLevelTime());
-		this.numOfPillsLeft = normalizeNumberOfPills(game.getNumberOfActivePills());
-		this.numOfPowerPillsLeft = normalizeNumberOfPowerPills(game.getNumberOfActivePowerPills());
+		this.numOfPillsLeft = normalizeNumberOfPills(game.getNumberOfActivePills(), this.numberOfTotalPillsInLevel);
+		this.numOfPowerPillsLeft = normalizeNumberOfPowerPills(game.getNumberOfActivePowerPills(), this.numberOfTotalPowerPillsInLevel);
 		
 		if (game.getGhostLairTime(GHOST.BLINKY) == 0) {
 			this.isBlinkyEdible = normalizeBoolean(game.isGhostEdible(GHOST.BLINKY));
-			this.blinkyDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.BLINKY)));
+			this.blinkyDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.BLINKY)), this.numberOfNodesInLevel);
 		}
 		
 		if (game.getGhostLairTime(GHOST.INKY) == 0) {
 		this.isInkyEdible = normalizeBoolean(game.isGhostEdible(GHOST.INKY));
-		this.inkyDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.INKY)));
+		this.inkyDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.INKY)), this.numberOfNodesInLevel);
 		}
 		
 		if (game.getGhostLairTime(GHOST.PINKY) == 0) {
 		this.isPinkyEdible = normalizeBoolean(game.isGhostEdible(GHOST.PINKY));
-		this.pinkyDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.PINKY)));
+		this.pinkyDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.PINKY)), this.numberOfNodesInLevel);
 		}
 		
 		if (game.getGhostLairTime(GHOST.SUE) == 0) {
 		this.isSueEdible = normalizeBoolean(game.isGhostEdible(GHOST.SUE));
-		this.sueDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.SUE)));
+		this.sueDist = normalizeDistance(game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.SUE)), this.numberOfNodesInLevel);
 		}
 		
 		this.blinkyDir = game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(GHOST.BLINKY), DM.PATH);
@@ -137,10 +131,10 @@ public class DataTuple {
 		int pinkyIndex = game.getGhostCurrentNodeIndex(GHOST.PINKY);
 		int sueIndex = game.getGhostCurrentNodeIndex(GHOST.SUE);
 		
-		this.blinkyIndex = normalizeIndex(blinkyIndex);
-		this.inkyIndex = normalizeIndex(inkyIndex);
-		this.pinkyIndex = normalizeIndex(pinkyIndex);
-		this.sueIndex = normalizeIndex(sueIndex);
+		this.blinkyIndex = normalizeIndex(blinkyIndex, this.numberOfNodesInLevel);
+		this.inkyIndex = normalizeIndex(inkyIndex, this.numberOfNodesInLevel);
+		this.pinkyIndex = normalizeIndex(pinkyIndex, this.numberOfNodesInLevel);
+		this.sueIndex = normalizeIndex(sueIndex, this.numberOfNodesInLevel);
 		
 		Node nodes[] = game.getCurrentMaze().graph;
 		
@@ -169,7 +163,30 @@ public class DataTuple {
 		this.sueX = p.x;
 		this.sueY = p.y;
 		//System.out.println("sue x " + this.sueX + " y " + this.sueY);
-		
+		// Nearest pill
+		int pills[] = game.getActivePillsIndices();
+		int nearestDist = Integer.MAX_VALUE;
+		int nearestPill = -1;
+		for(int i = 0; i < pills.length; ++i) {
+			int dist = game.getShortestPathDistance(pacmanIndex, pills[i]);
+			if(dist < nearestDist) {
+				nearestDist = dist;
+				nearestPill = pills[i];
+			}
+		}
+		this.nearestPillDist = normalizeDistance(nearestDist, this.numberOfNodesInLevel);
+		// Find nearest power pill
+		int powerPills[] = game.getActivePowerPillsIndices();
+		int nearestPowerPill = -1; // Default
+		nearestDist = Integer.MAX_VALUE;
+		for(int i = 0; i < powerPills.length; ++i) {
+			int dist = game.getShortestPathDistance(pacmanIndex, powerPills[i]);
+			if(dist < nearestDist) {
+				nearestDist = dist;
+				nearestPowerPill = powerPills[i];
+			}
+		}
+		this.nearestPowerPillDist = normalizeDistance(nearestDist, this.numberOfNodesInLevel);
 	}
 	
 	public DataTuple(String data)
@@ -220,6 +237,9 @@ public class DataTuple {
 		this.pinkyY = Double.parseDouble(dataSplit[33]);
 		this.sueX = Double.parseDouble(dataSplit[34]);
 		this.sueY = Double.parseDouble(dataSplit[35]);
+		
+		this.nearestPillDist = Double.parseDouble(dataSplit[36]);
+		this.nearestPowerPillDist = Double.parseDouble(dataSplit[37]);
 	}
 	
 	public String getSaveString()
@@ -270,6 +290,9 @@ public class DataTuple {
 		stringbuilder.append(this.sueX+";");
 		stringbuilder.append(this.sueY+";");
 		
+		stringbuilder.append(this.nearestPillDist+";");
+		stringbuilder.append(this.nearestPowerPillDist+";");
+		
 		return stringbuilder.toString();
 	}
 
@@ -281,22 +304,22 @@ public class DataTuple {
 	 * @param dist Distance to be normalized
 	 * @return Normalized distance
 	 */
-	public double normalizeDistance(int dist)
+	public static double normalizeDistance(int dist, int numberOfNodesInLevel)
 	{
-		return ((dist-0)/(double)(this.numberOfNodesInLevel-0))*(1-0)+0;
+		return ((dist-0)/(double)(numberOfNodesInLevel-0))*(1-0)+0;
 	}
 	
-	public double normalizeLevel(int level)
+	public static double normalizeLevel(int level)
 	{
 		return ((level-0)/(double)(Constants.NUM_MAZES-0))*(1-0)+0;
 	}
 	
-	public double normalizeIndex(int position)
+	public static double normalizeIndex(int position, int numberOfNodesInLevel)
 	{
-		return ((position-0)/(double)(this.numberOfNodesInLevel-0))*(1-0)+0;
+		return ((position-0)/(double)(numberOfNodesInLevel-0))*(1-0)+0;
 	}
 	
-	public double normalizeBoolean(boolean bool)
+	public static double normalizeBoolean(boolean bool)
 	{
 		if(bool)
 		{
@@ -308,32 +331,32 @@ public class DataTuple {
 		}
 	}
 	
-	public double normalizeNumberOfPills(int numOfPills)
+	public static double normalizeNumberOfPills(int numOfPills, int numberOfTotalPillsInLevel)
 	{
-		return ((numOfPills-0)/(double)(this.numberOfTotalPillsInLevel-0))*(1-0)+0;
+		return ((numOfPills-0)/(double)(numberOfTotalPillsInLevel-0))*(1-0)+0;
 	}
 	
-	public double normalizeNumberOfPowerPills(int numOfPowerPills)
+	public static double normalizeNumberOfPowerPills(int numOfPowerPills, int numberOfTotalPowerPillsInLevel)
 	{
-		return ((numOfPowerPills-0)/(double)(this.numberOfTotalPowerPillsInLevel-0))*(1-0)+0;
+		return ((numOfPowerPills-0)/(double)(numberOfTotalPowerPillsInLevel-0))*(1-0)+0;
 	}
 	
-	public double normalizeTotalGameTime(int time)
+	public static double normalizeTotalGameTime(int time)
 	{
 		return ((time-0)/(double)(Constants.MAX_TIME-0))*(1-0)+0;
 	}
 	
-	public double normalizeCurrentLevelTime(int time)
+	public static double normalizeCurrentLevelTime(int time)
 	{
 		return ((time-0)/(double)(Constants.LEVEL_LIMIT-0))*(1-0)+0;
 	}
 	
-	public Position normalizePosition(int x, int y)
+	public static Position normalizePosition(int x, int y)
 	{		
 		return new Position((x - MIN_X) / (double)(MAX_X - MIN_X), (y - MIN_Y) / (double)(MAX_Y - MIN_Y));
 	}
 	
-	public double normalizeLives(int val) {
+	public static double normalizeLives(int val) {
 		return val / (double)Constants.NUM_LIVES;
 	}
 	
@@ -344,7 +367,7 @@ public class DataTuple {
 	 * @param score
 	 * @return
 	 */
-	public double normalizeCurrentScore(int score)
+	public static double normalizeCurrentScore(int score)
 	{
 		return ((score-0)/(double)(82180-0))*(1-0)+0;
 	}

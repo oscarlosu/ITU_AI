@@ -20,8 +20,10 @@ public class Backpropagation {
 	public void train(NeuralNetwork nn, ArrayList<TrainingTuple> data, double learningRate) {
 		boolean terminate = false;
 		int epoch = 1;
-		while(!terminate) {
+		while(!terminate) {			
 			// Epoch
+			// Ensure delta weights and delta biases are set to 0
+			nn.CleanTrainingValues();
 			// Will stop unless maxEpochs have been computed and some deltaWeights are bigger than the threshold
 			terminate = true;
 			for(TrainingTuple tuple: data) {
@@ -55,7 +57,10 @@ public class Backpropagation {
 					for(Connection c: n.getOutputs()) {
 						double deltaWeight = (learningRate / (double)epoch) * c.getTo().getError() * c.getFrom().getValue();
 						// Save deltaWeight for Epoch Update and termination
-						c.setDeltaWeight(deltaWeight);
+						c.setDeltaWeight(c.getDeltaWeight() + deltaWeight);
+						if(c.getDeltaWeight() > deltaWeightTerminationThreshold) {
+							terminate = false;
+						}
 						// Update now if update mode is Case Update
 						if(updateMode == WeightUpdateMode.CaseUpdate) {
 							c.setWeight(c.getWeight() + deltaWeight);
@@ -69,7 +74,10 @@ public class Backpropagation {
 					for(Connection c: n.getOutputs()) {
 						double deltaWeight = (learningRate / (double)epoch) * c.getTo().getError() * c.getFrom().getValue();
 						// Save deltaWeight for Epoch Update and termination
-						c.setDeltaWeight(deltaWeight);
+						c.setDeltaWeight(c.getDeltaWeight() + deltaWeight);
+						if(c.getDeltaWeight() > deltaWeightTerminationThreshold) {
+							terminate = false;
+						}
 						// Update now if update mode is Case Update
 						if(updateMode == WeightUpdateMode.CaseUpdate) {
 							c.setWeight(c.getWeight() + deltaWeight);
@@ -89,7 +97,7 @@ public class Backpropagation {
 				for(int i = 0; i < nn.getHiddenLayerSize(); ++i) {
 					Neuron n = nn.getHiddenNeuron(i);
 					double deltaBias = (learningRate / (double)epoch) * n.getError();
-					n.setDeltaBias(deltaBias);
+					n.setDeltaBias(n.getDeltaBias() + deltaBias);
 					if(updateMode == WeightUpdateMode.CaseUpdate) {
 						n.setBias(n.getBias() + deltaBias);
 						//System.out.println("new bias " + n.getBias());
@@ -98,7 +106,7 @@ public class Backpropagation {
 				for(int i = 0; i < nn.getOutputLayerSize(); ++i) {
 					Neuron n = nn.getOutputNeuron(i);
 					double deltaBias = (learningRate / (double)epoch) * n.getError();
-					n.setDeltaBias(deltaBias);
+					n.setDeltaBias(n.getDeltaBias() + deltaBias);
 					if(updateMode == WeightUpdateMode.CaseUpdate) {
 						n.setBias(n.getBias() + deltaBias);
 						//System.out.println("new bias " + n.getBias());
@@ -151,6 +159,10 @@ public class Backpropagation {
 			if(epoch > maxEpochs) {
 				terminate = true;
 			}
+			if(epoch % 500 == 0) {
+				System.out.println(epoch + " epochs completed");
+			}			
+			++epoch;
 		}
 	}
 

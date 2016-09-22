@@ -81,6 +81,21 @@ public class NeuralNetwork {
 		}
 	}
 	
+	public void CleanTrainingValues() {
+		// Clean delta weights and delta biases
+		for(Connection c: connections) {
+			c.setDeltaWeight(0);
+		}
+		for(Neuron n: inputLayer) {
+			n.setDeltaBias(0);
+		}
+		for(Neuron n: hiddenLayer) {
+			n.setDeltaBias(0);
+		}
+		for(Neuron n: outputLayer) {
+			n.setDeltaBias(0);
+		}
+	}
 	public ArrayList<Double> Evaluate(ArrayList<Double> inputValues) {
 		// Mark cached neuron values as old
 		for(Neuron n: inputLayer) {

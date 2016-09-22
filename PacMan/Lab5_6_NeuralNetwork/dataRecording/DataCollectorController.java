@@ -21,10 +21,19 @@ public class DataCollectorController extends HumanController{
 	
 	@Override
 	public MOVE getMove(Game game, long dueTime) {	
-		MOVE chosenMove = super.getMove(game, dueTime);		
-		if(chosenMove == MOVE.NEUTRAL) {
+		MOVE chosenMove = super.getMove(game, dueTime);
+		MOVE possibleMoves[] = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
+		boolean legalMove = false;
+		for(MOVE m: possibleMoves) {
+			if(m == chosenMove) {
+				legalMove = true;
+				break;
+			}
+		}
+		if(chosenMove == MOVE.NEUTRAL || !legalMove) {
 			chosenMove = game.getPacmanLastMoveMade();
 		}
+		
 		// Save game states for each move - without ghost actions - giving a score of 1 to the option that
 		// the player chose, and 0 to the rest
 		DataTuple data;

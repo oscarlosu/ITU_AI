@@ -7,7 +7,7 @@ import dataRecording.DataTuple;
 import neuralNetwork.NeuralNetwork;
 
 public class Trainer {	
-	private static String dataFilename = "trainingData.data";
+	private static String dataFilename = "julia2.data";
 	private static String trainedNNFilename = "trainedNN.json";
 	// NN params
 	private static int inputLayerSize = 10;
@@ -17,9 +17,9 @@ public class Trainer {
 
 	// Backpropagation params
 	private static WeightUpdateMode weightUpdateMode = WeightUpdateMode.CaseUpdate;
-	private static int maxEpochs = 10;
-	private static double deltaWeightTerminationThreshold = 0.1;	
-	private static double learningRate = 0.9;
+	private static int maxEpochs = 10000;
+	private static double deltaWeightTerminationThreshold = 0.00001;	
+	private static double learningRate = 0.1;
 	
 	public static void main(String[] args) {
 		System.out.println("Training started. Params:");

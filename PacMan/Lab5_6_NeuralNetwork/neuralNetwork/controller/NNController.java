@@ -31,7 +31,9 @@ public class NNController extends Controller<MOVE>
 		double bestScore = Double.MIN_VALUE;
 		MOVE bestMove = MOVE.NEUTRAL;
 		int currentPacmanIndex = game.getPacmanCurrentNodeIndex();
-		for(MOVE m: MOVE.values()) {
+		
+		MOVE validMoves[] = game.getPossibleMoves(currentPacmanIndex);
+		for(MOVE m: validMoves) {
 			ArrayList<Double> inputValues = new ArrayList<Double>();
 			// TODO: Fill with values from game + possibleMove			
 			int newPacmanIndex = game.getNeighbour(currentPacmanIndex, m);
@@ -51,10 +53,10 @@ public class NNController extends Controller<MOVE>
 			inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.INKY)));
 			inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.SUE)));
 			// Pills
-			dist = game.getShortestPathDistance(newPacmanIndex, NearestPillDist(game, newPacmanIndex));
+			dist = NearestPillDist(game, newPacmanIndex);
 			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
 			
-			dist = game.getShortestPathDistance(newPacmanIndex, NearestPowerPillDist(game, newPacmanIndex));
+			dist = NearestPowerPillDist(game, newPacmanIndex);
 			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
 
 			

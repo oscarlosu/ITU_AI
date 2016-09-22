@@ -7,22 +7,46 @@ import dataRecording.DataTuple;
 import neuralNetwork.NeuralNetwork;
 
 public class Trainer {	
+	private static String dataFilename = "trainingData.data";
+	private static String trainedNNFilename = "trainedNN.json";
 	// NN params
-	private int inputLayerSize = 10;
-	private int hiddenLayerSize = 10;
-	private int outputLayerSize = 1;
+	private static int inputLayerSize = 10;
+	private static int hiddenLayerSize = 10;
+	private static int outputLayerSize = 1;
 	
 
 	// Backpropagation params
-	private WeightUpdateMode weightUpdateMode = WeightUpdateMode.CaseUpdate;
-	private int maxEpochs = 100;
-	private double deltaWeightTerminationThreshold = 0.1;	
-	private double learningRate = 0.9;
+	private static WeightUpdateMode weightUpdateMode = WeightUpdateMode.CaseUpdate;
+	private static int maxEpochs = 10;
+	private static double deltaWeightTerminationThreshold = 0.1;	
+	private static double learningRate = 0.9;
 	
-	public void Train() {
+	public static void main(String[] args) {
+		System.out.println("Training started. Params:");
+		
+		System.out.println("dataFilename " + dataFilename);
+		System.out.println("trainedNNFilename " + trainedNNFilename);
+		
+		System.out.println("inputLayerSize " + inputLayerSize);
+		System.out.println("hiddenLayerSize " + hiddenLayerSize);
+		System.out.println("outputLayerSize " + outputLayerSize);
+		
+		System.out.println("weightUpdateMode " + weightUpdateMode);
+		System.out.println("maxEpochs " + maxEpochs);
+		System.out.println("deltaWeightTerminationThreshold " + deltaWeightTerminationThreshold);
+		System.out.println("learningRate " + learningRate);		
+		
+		System.out.println("...");
+		Train();
+		
+		System.out.println("Training ended.");
+	}
+	
+	
+	public static void Train() {
 		// Create array of TrainigTuples with DataTuples from file
 		ArrayList<TrainingTuple> trainingTuples = new ArrayList<TrainingTuple>();		
-		DataTuple[] data = DataSaverLoader.LoadPacManData();
+		DataTuple[] data = DataSaverLoader.LoadPacManData(dataFilename);
 		// Transform DataTuples into TrainingTuples
 		for(int i = 0; i < data.length; ++i) {
 			TrainingTuple tt = new TrainingTuple();
@@ -41,10 +65,7 @@ public class Trainer {
 			tt.getInputValues().add(data[i].nearestPillDist);
 			tt.getInputValues().add(data[i].nearestPowerPillDist);
 			// OUTPUT
-			// TODO: Is this enough?
-			// Since this was the game state chosen by the player, the output should be high
-			tt.getOutputValues().add(1.0);
-			
+			tt.getOutputValues().add(data[i].score);			
 			// Add to training tuples list
 			trainingTuples.add(tt);
 		}
@@ -55,7 +76,6 @@ public class Trainer {
 		Backpropagation backpropagation = new Backpropagation(weightUpdateMode, maxEpochs, deltaWeightTerminationThreshold);
 		backpropagation.train(nn, trainingTuples, learningRate);
 		// Save Neural Network to file
-		
-		// TODO: JSON
+		nn.Save(trainedNNFilename);
 	}
 }

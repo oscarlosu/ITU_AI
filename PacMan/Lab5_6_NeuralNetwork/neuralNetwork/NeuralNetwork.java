@@ -1,25 +1,41 @@
 package neuralNetwork;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+
+import pacman.game.util.IO;
+
 public class NeuralNetwork {
-	private ArrayList<Neuron> inputLayer;
-	private ArrayList<Neuron> outputLayer;
+	@Expose
+	private ArrayList<Neuron> inputLayer;	
+	@Expose
 	private ArrayList<Neuron> hiddenLayer;
+	@Expose
+	private ArrayList<Neuron> outputLayer;
+	@Expose
+	private ArrayList<Connection> connections;
 	
-	public NeuralNetwork(ArrayList<Neuron> input, ArrayList<Neuron> output, ArrayList<Neuron> hidden) {
-		super();
-		this.inputLayer = input;
-		this.outputLayer = output;
-		this.hiddenLayer = hidden;
-	}
+	private HashMap<Integer, Neuron> neuronLookup;
+ 	
+//	public NeuralNetwork(ArrayList<Neuron> input, ArrayList<Neuron> output, ArrayList<Neuron> hidden) {
+//		super();
+//		this.inputLayer = input;
+//		this.outputLayer = output;
+//		this.hiddenLayer = hidden;
+//	}
 
 	public NeuralNetwork() {
 		super();
 		inputLayer = new ArrayList<Neuron>();
 		outputLayer = new ArrayList<Neuron>();
 		hiddenLayer = new ArrayList<Neuron>();
+		connections = new ArrayList<Connection>();
+		neuronLookup = new HashMap<Integer, Neuron>();
 	}
 	
 	public void InitializeRandomFullyConnected(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
@@ -30,25 +46,26 @@ public class NeuralNetwork {
 			Neuron n = new Neuron(af);
 			//n.setBias((rng.nextDouble() * 2) - 1);
 			n.setBias(0);
-			inputLayer.add(n);
+			addInputNeuron(n);
 		}
 		// Hidden layer
 		for(int i = 0; i < hiddenLayerSize; ++i) {
 			Neuron n = new Neuron(af);
 			n.setBias((rng.nextDouble() * 2) - 1);
-			hiddenLayer.add(n);
+			addHiddenNeuron(n);
 		}
 		// Output layer
 		for(int i = 0; i < outputLayerSize; ++i) {
 			Neuron n = new Neuron(af);
 			n.setBias((rng.nextDouble() * 2) - 1);
-			outputLayer.add(n);
+			addOutputNeuron(n);
 		}
 		// Connections
 		// Input - Hidden
 		for(Neuron from: inputLayer) {
 			for(Neuron to: hiddenLayer) {
 				Connection c = new Connection(from, to, (rng.nextDouble() * 2) - 1);
+				connections.add(c);
 				from.getOutputs().add(c);
 				to.getInputs().add(c);
 			}
@@ -57,6 +74,7 @@ public class NeuralNetwork {
 		for(Neuron from: hiddenLayer) {
 			for(Neuron to: outputLayer) {
 				Connection c = new Connection(from, to, (rng.nextDouble() * 2) - 1);
+				connections.add(c);
 				from.getOutputs().add(c);
 				to.getInputs().add(c);
 			}
@@ -79,28 +97,108 @@ public class NeuralNetwork {
 		}
 		return outputValues;
 	}
-
-	public ArrayList<Neuron> getInput() {
-		return inputLayer;
+	
+	public void Save(String filename) {
+		// Ensure that all the connections have the real neuron ids.
+		for(Connection c: connections) {
+			c.UpdateNeuronIds();
+		}		
+		// Create json string
+		GsonBuilder builder = new GsonBuilder();
+	    builder.excludeFieldsWithoutExposeAnnotation();
+	    builder.setPrettyPrinting();
+	    Gson gson = builder.create();
+		String json = gson.toJson(this);
+		// Save to file in myData/
+		IO.saveFile(filename, json, false);
 	}
-
-	public void setInput(ArrayList<Neuron> input) {
-		this.inputLayer = input;
+	
+	public static NeuralNetwork Load(String filename) {
+		// Create json string
+		GsonBuilder builder = new GsonBuilder();
+	    builder.excludeFieldsWithoutExposeAnnotation();
+	    builder.setPrettyPrinting();
+	    Gson gson = builder.create();
+		String json = IO.loadFile(filename);
+		NeuralNetwork loadedNN = gson.fromJson(json, NeuralNetwork.class);
+		loadedNN.Link();
+		return loadedNN;
 	}
-
-	public ArrayList<Neuron> getOutput() {
-		return outputLayer;
+	
+	public void Link() {
+		// Fill neuronLookup
+		for(Neuron n: inputLayer) {
+			neuronLookup.put(n.getId(), n);
+		}
+		for(Neuron n: hiddenLayer) {
+			neuronLookup.put(n.getId(), n);
+		}
+		for(Neuron n: outputLayer) {
+			neuronLookup.put(n.getId(), n);
+		}
+		// Link connections and neurons
+		for(Connection c: connections) {
+			int fromId = c.getFromId();
+			int toId = c.getToId();
+			Neuron from = neuronLookup.get(fromId);
+			Neuron to = neuronLookup.get(toId);
+			// Link connections
+			c.setFrom(from);
+			c.setTo(to);
+			// Link neurons
+			from.getOutputs().add(c);
+			to.getInputs().add(c);
+		}
 	}
-
-	public void setOutput(ArrayList<Neuron> output) {
-		this.outputLayer = output;
+	
+	
+	public void addInputNeuron(Neuron n) {
+		int id = inputLayer.size() + hiddenLayer.size() + outputLayer.size();
+		n.setId(id);
+		inputLayer.add(n);
 	}
-
-	public ArrayList<Neuron> getHidden() {
-		return hiddenLayer;
+	
+	public void addHiddenNeuron(Neuron n) {
+		int id = inputLayer.size() + hiddenLayer.size() + outputLayer.size();
+		n.setId(id);
+		hiddenLayer.add(n);
 	}
-
-	public void setHidden(ArrayList<Neuron> hidden) {
-		this.hiddenLayer = hidden;
+	
+	public void addOutputNeuron(Neuron n) {
+		int id = inputLayer.size() + hiddenLayer.size() + outputLayer.size();
+		n.setId(id);
+		outputLayer.add(n);
+	}
+	
+	public Neuron getInputNeuron(int index) {
+		return inputLayer.get(index);
+	}
+	
+	public int getInputLayerSize() {
+		return inputLayer.size();
+	}
+	
+	public Neuron getHiddenNeuron(int index) {
+		return hiddenLayer.get(index);
+	}
+	
+	public int getHiddenLayerSize() {
+		return hiddenLayer.size();
+	}
+	
+	public Neuron getOutputNeuron(int index) {
+		return outputLayer.get(index);
+	}
+	
+	public int getOutputLayerSize() {
+		return outputLayer.size();
+	}
+	
+	public void addConnection(Connection c) {
+		connections.add(c);
+	}
+	
+	public Connection getConnection(int index) {
+		return connections.get(index);
 	}
 }

@@ -21,13 +21,25 @@ public class Tester {
 		// Backpropagation
 		System.out.println("Backpropagation");
 		Train(nn);
+		// Evaluate again
+		System.out.println("Evaluation after backpropagation");
+		Evaluate(nn);
+		// Save to json file
+		System.out.println("Save to file: myData/MyNN.json");
+		nn.Save("MyNN.json");
+		
+		System.out.println("Load from file: myData/MyNN.json");
+		// Delete
+		nn = null;
+		// Load from file
+		nn = NeuralNetwork.Load("MyNN.json");
+		// Evaluate loaded NN
+		System.out.println("Evaluate after load");
+		Evaluate(nn);
 	}
 	
 	public static NeuralNetwork BuildExampleNN() {
 		NeuralNetwork nn = new NeuralNetwork();
-		ArrayList<Neuron> hiddenLayer = nn.getHidden();
-		ArrayList<Neuron> inputLayer = nn.getInput();
-		ArrayList<Neuron> outputLayer = nn.getOutput();
 		
 		ActivationFunction activation = new Sigmoid();
 		// Neurons
@@ -43,45 +55,53 @@ public class Tester {
 		// Connections
 		// 1 - 4
 		Connection c = new Connection(n1, n4, 0.2);
+		nn.addConnection(c);
 		n1.getOutputs().add(c);
-		n4.getInputs().add(c);
+		n4.getInputs().add(c);		
 		// 1 - 5
 		c = new Connection(n1, n5, -0.3);
+		nn.addConnection(c);
 		n1.getOutputs().add(c);
-		n5.getInputs().add(c);
+		n5.getInputs().add(c);		
 		// 2 - 4
 		c = new Connection(n2, n4, 0.4);
+		nn.addConnection(c);
 		n2.getOutputs().add(c);
 		n4.getInputs().add(c);		
 		// 2 - 5
 		c = new Connection(n2, n5, 0.1);
+		nn.addConnection(c);
 		n2.getOutputs().add(c);
 		n5.getInputs().add(c);		
 		// 3 - 4
 		c = new Connection(n3, n4, -0.5);
+		nn.addConnection(c);
 		n3.getOutputs().add(c);
 		n4.getInputs().add(c);		
 		// 3 - 5
 		c = new Connection(n3, n5, 0.2);
+		nn.addConnection(c);
 		n3.getOutputs().add(c);
 		n5.getInputs().add(c);		
 		// 4 - 6
 		c = new Connection(n4, n6, -0.3);
+		nn.addConnection(c);
 		n4.getOutputs().add(c);
 		n6.getInputs().add(c);		
 		// 5 - 6
 		c = new Connection(n5, n6, -0.2);
+		nn.addConnection(c);
 		n5.getOutputs().add(c);
 		n6.getInputs().add(c);		
 		
-		inputLayer.add(n1);
-		inputLayer.add(n2);
-		inputLayer.add(n3);
+		nn.addInputNeuron(n1);
+		nn.addInputNeuron(n2);
+		nn.addInputNeuron(n3);
 		
-		hiddenLayer.add(n4);
-		hiddenLayer.add(n5);
+		nn.addHiddenNeuron(n4);
+		nn.addHiddenNeuron(n5);
 		
-		outputLayer.add(n6);
+		nn.addOutputNeuron(n6);
 		
 		return nn;
 	}

@@ -4,6 +4,8 @@
 	<classpathentry kind="src" path="Lab2_BehaviourTree"/>
 	<classpathentry kind="src" path="Lab5_6_NeuralNetwork"/>
 	<classpathentry kind="src" path="Lab3_4_EvolutionaryAlgorithm"/>
+	<classpathentry kind="src" path="gson"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

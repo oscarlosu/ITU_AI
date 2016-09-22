@@ -12,6 +12,7 @@ import java.util.Random;
 
 import behaviourTree.controller.BTController;
 import dataRecording.DataCollectorController;
+import neuralNetwork.controller.NNController;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
@@ -69,10 +70,21 @@ public class Executor
 		//exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 		//exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);
 		
-		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(),visual);
-		BTController controller = new BTController();
-		controller.ReadFromFile("bt.config");
-		controller.WriteToFile("savedBt.config");
+		// 1. BEHAVIOUR TREE
+//		BTController btController = new BTController();
+//		btController.ReadFromFile("bt.config");
+//		exec.runGameTimed(btController, new StarterGhosts(),visual);
+		
+		
+		// 2. NEURAL NETWORK
+		// Gather data
+		exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "trainingData.data"), new StarterGhosts(),visual);
+		// Run NN player (needs to be trained with the gathered data beforehand)
+		NNController nnController = new NNController("trainedNN.json");
+		exec.runGameTimed(nnController, new StarterGhosts(),visual);
+		
+		
+		
 		//exec.runGameTimed(controller,new StarterGhosts(),visual);
 		
 		//*/

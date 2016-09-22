@@ -65,6 +65,8 @@ public class DataTuple {
 	public double nearestPillDist;
 	public double nearestPowerPillDist;
 	
+	public double score;
+	
 	// Empirically observed bounds for positions
 	public static final int MIN_X=0;
 	public static final int MAX_X=108;
@@ -72,20 +74,14 @@ public class DataTuple {
 	public static final int MAX_Y=116;	
 	
 	
-	public DataTuple(Game game, MOVE move)
+	public DataTuple(Game game, double score)
 	{
 		this.numberOfNodesInLevel = game.getNumberOfNodes();
 		this.numberOfTotalPillsInLevel = game.getNumberOfPills();
 		this.numberOfTotalPowerPillsInLevel = game.getNumberOfPowerPills();
 		
-		
-		
-		if(move == MOVE.NEUTRAL)
-		{
-			move = game.getPacmanLastMoveMade();
-		}
-		
-		this.DirectionChosen = move;
+		this.score = score;
+		this.DirectionChosen = game.getPacmanLastMoveMade();
 		
 		this.mazeIndex = normalizeLevel(game.getMazeIndex());
 		this.currentLevel = normalizeLevel(game.getCurrentLevel());
@@ -144,7 +140,7 @@ public class DataTuple {
 		Position p = normalizePosition(n.x, n.y);
 		this.pacmanX = p.x;
 		this.pacmanY = p.y;
-		System.out.println("pacman x " + this.pacmanX + " y " + this.pacmanY);
+		//System.out.println("pacman x " + this.pacmanX + " y " + this.pacmanY);
 		// Ghost positions
 		n = nodes[blinkyIndex];
 		p = normalizePosition(n.x, n.y);
@@ -240,6 +236,8 @@ public class DataTuple {
 		
 		this.nearestPillDist = Double.parseDouble(dataSplit[36]);
 		this.nearestPowerPillDist = Double.parseDouble(dataSplit[37]);
+		
+		this.score = Double.parseDouble(dataSplit[38]);
 	}
 	
 	public String getSaveString()
@@ -292,6 +290,8 @@ public class DataTuple {
 		
 		stringbuilder.append(this.nearestPillDist+";");
 		stringbuilder.append(this.nearestPowerPillDist+";");
+		
+		stringbuilder.append(this.score+";");
 		
 		return stringbuilder.toString();
 	}

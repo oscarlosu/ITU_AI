@@ -2,16 +2,23 @@ package neuralNetwork;
 
 import java.util.ArrayList;
 
+import com.google.gson.annotations.Expose;
+
 public class Neuron {
 	private ArrayList<Connection> inputs;
 	private ArrayList<Connection> outputs;
 	private ActivationFunction activation;
 	private double preActivationValue;
 	private double value;
+	@Expose
+	private int id;
+	@Expose
 	private double bias;
 	private boolean updatedValue;
 	private double error;
 	private double deltaBias;
+	
+	
 	
 	public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, ActivationFunction activation) {
 		super();
@@ -38,6 +45,19 @@ public class Neuron {
 		this.error = 0;
 		this.deltaBias = 0;
 	}
+	
+	public Neuron() {
+		super();
+		this.inputs = new ArrayList<Connection>();
+		this.outputs = new ArrayList<Connection>();
+		this.activation = new Sigmoid();
+		this.preActivationValue = 0;
+		this.value = 0;
+		this.bias = 0;
+		this.updatedValue = false;
+		this.error = 0;
+		this.deltaBias = 0;
+	}
 
 	public double evaluate() {
 		// Neurons without input connections are input neurons and it's value should be set manually
@@ -56,7 +76,7 @@ public class Neuron {
 			value = activation.value(input);
 			// Set flag
 			updatedValue = true;
-			System.out.println(value);
+			//System.out.println(value);
 		}
 		
 		return value;
@@ -143,6 +163,14 @@ public class Neuron {
 
 	public void setDeltaBias(double deltaBias) {
 		this.deltaBias = deltaBias;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	

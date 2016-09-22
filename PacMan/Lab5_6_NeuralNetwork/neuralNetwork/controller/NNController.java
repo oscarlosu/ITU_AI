@@ -1,3 +1,5 @@
+package neuralNetwork.controller;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,14 +19,11 @@ public class NNController extends Controller<MOVE>
 {	
 	public NeuralNetwork nn = null;
 	
-	public NNController() {
+	public NNController(String configFile) {
 		super();	
+		nn = NeuralNetwork.Load(configFile);
 	}
 	
-	public void ReadFromFile(String configFile) {
-		// TODO: JSON
-		
-	}
 	public MOVE getMove(Game game, long timeDue) 
 	{		
 		// Get outcomes of each possible move and ask neural network which one is better

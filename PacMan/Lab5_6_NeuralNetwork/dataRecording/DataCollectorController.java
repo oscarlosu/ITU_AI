@@ -34,22 +34,9 @@ public class DataCollectorController extends HumanController{
 			chosenMove = game.getPacmanLastMoveMade();
 		}
 		
-		// Save game states for each move - without ghost actions - giving a score of 1 to the option that
-		// the player chose, and 0 to the rest
-		DataTuple data;
-		for(MOVE move : MOVE.values()) {
-			// Skip neutral
-			if(move != MOVE.NEUTRAL) {
-				Game copy = game.copy();
-				copy.updatePacMan(move);
-				if(move == chosenMove) {
-					data = new DataTuple(game, 1.0);				
-				} else {
-					data = new DataTuple(game, 0.0);	
-				}
-				DataSaverLoader.SavePacManData(data, filename);
-			}			
-		}		
+		DataTuple data = new DataTuple(game, chosenMove);
+		DataSaverLoader.SavePacManData(data, filename);
+		
 		// Execute action indicated by player input		
 		return chosenMove;
 	}

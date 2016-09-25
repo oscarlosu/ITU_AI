@@ -62,10 +62,19 @@ public class DataTuple {
 	public double sueX;
 	public double sueY;
 	
+	
+	public double nearestPillX;
+	public double nearestPillY;
+	public double nearestPowerPillX;
+	public double nearestPowerPillY;
 	public double nearestPillDist;
 	public double nearestPowerPillDist;
 	
-	public double score;
+	public double upLegal;
+	public double downLegal;
+	public double leftLegal;
+	public double rightLegal;
+	
 	
 	// Empirically observed bounds for positions
 	public static final int MIN_X=0;
@@ -74,14 +83,18 @@ public class DataTuple {
 	public static final int MAX_Y=116;	
 	
 	
-	public DataTuple(Game game, double score)
+	public DataTuple(Game game, MOVE move)
 	{
 		this.numberOfNodesInLevel = game.getNumberOfNodes();
 		this.numberOfTotalPillsInLevel = game.getNumberOfPills();
 		this.numberOfTotalPowerPillsInLevel = game.getNumberOfPowerPills();
 		
-		this.score = score;
-		this.DirectionChosen = game.getPacmanLastMoveMade();
+		if(move == MOVE.NEUTRAL) {
+			this.DirectionChosen = game.getPacmanLastMoveMade();
+		} else {
+			this.DirectionChosen = move;
+		}
+		
 		
 		this.mazeIndex = normalizeLevel(game.getMazeIndex());
 		this.currentLevel = normalizeLevel(game.getCurrentLevel());
@@ -170,7 +183,17 @@ public class DataTuple {
 				nearestPill = pills[i];
 			}
 		}
-		this.nearestPillDist = normalizeDistance(nearestDist, this.numberOfNodesInLevel);
+		// Set max dist if no more pills
+		if(nearestPill < 0) {
+			this.nearestPillX = 1;
+			this.nearestPillY = 1;
+			this.nearestPillDist = 1;
+		} else {
+			Position pillPos = normalizePosition(nodes[nearestPill].x, nodes[nearestPill].y);
+			this.nearestPillX = pillPos.x;
+			this.nearestPillY = pillPos.y;
+			this.nearestPillDist = normalizeDistance(nearestDist, this.numberOfNodesInLevel);
+		}
 		// Find nearest power pill
 		int powerPills[] = game.getActivePowerPillsIndices();
 		int nearestPowerPill = -1; // Default
@@ -182,7 +205,35 @@ public class DataTuple {
 				nearestPowerPill = powerPills[i];
 			}
 		}
-		this.nearestPowerPillDist = normalizeDistance(nearestDist, this.numberOfNodesInLevel);
+		// Set max dist if no more power pills
+		if(nearestPowerPill < 0) {
+			this.nearestPowerPillX = 1;
+			this.nearestPowerPillY = 1;
+			this.nearestPowerPillDist = 1;
+		} else {
+			Position powerPillPos = normalizePosition(nodes[nearestPowerPill].x, nodes[nearestPowerPill].y);
+			this.nearestPowerPillX = powerPillPos.x;
+			this.nearestPowerPillY = powerPillPos.y;
+			this.nearestPowerPillDist = normalizeDistance(nearestDist, this.numberOfNodesInLevel);
+		}
+		
+		
+		// Legal moves
+		this.upLegal = 0.0;
+		this.downLegal = 0.0;
+		this.leftLegal = 0.0;
+		this.rightLegal = 0.0;
+		for(MOVE m: game.getPossibleMoves(pacmanIndex)) {
+			if(m == MOVE.UP) {
+				this.upLegal = 1.0;
+			} else if(m == MOVE.DOWN) {
+				this.downLegal = 1.0;
+			} else if(m == MOVE.LEFT) {
+				this.leftLegal = 1.0;
+			} else if(m == MOVE.RIGHT) {
+				this.rightLegal = 1.0;
+			}
+		}
 	}
 	
 	public DataTuple(String data)
@@ -237,7 +288,15 @@ public class DataTuple {
 		this.nearestPillDist = Double.parseDouble(dataSplit[36]);
 		this.nearestPowerPillDist = Double.parseDouble(dataSplit[37]);
 		
-		this.score = Double.parseDouble(dataSplit[38]);
+		this.nearestPillX = Double.parseDouble(dataSplit[38]);
+		this.nearestPillY = Double.parseDouble(dataSplit[39]);
+		this.nearestPowerPillX = Double.parseDouble(dataSplit[40]);
+		this.nearestPowerPillY = Double.parseDouble(dataSplit[41]);
+		
+		this.upLegal = Double.parseDouble(dataSplit[42]);
+		this.downLegal = Double.parseDouble(dataSplit[42]);
+		this.leftLegal = Double.parseDouble(dataSplit[42]);
+		this.rightLegal = Double.parseDouble(dataSplit[42]);
 	}
 	
 	public String getSaveString()
@@ -291,7 +350,15 @@ public class DataTuple {
 		stringbuilder.append(this.nearestPillDist+";");
 		stringbuilder.append(this.nearestPowerPillDist+";");
 		
-		stringbuilder.append(this.score+";");
+		stringbuilder.append(this.nearestPillX+";");
+		stringbuilder.append(this.nearestPillY+";");
+		stringbuilder.append(this.nearestPowerPillX+";");
+		stringbuilder.append(this.nearestPowerPillY+";");
+		
+		stringbuilder.append(this.upLegal+";");
+		stringbuilder.append(this.downLegal+";");
+		stringbuilder.append(this.leftLegal+";");
+		stringbuilder.append(this.rightLegal+";");
 		
 		return stringbuilder.toString();
 	}

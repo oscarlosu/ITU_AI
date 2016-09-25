@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import dataRecording.DataTuple;
+import dataRecording.Position;
 import neuralNetwork.NeuralNetwork;
 import pacman.controllers.Controller;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
+import pacman.game.internal.Maze;
+import pacman.game.internal.Node;
 
 /*
  * This is the class you need to modify for your entry. In particular, you need to
@@ -18,61 +21,120 @@ import pacman.game.Game;
 public class NNController extends Controller<MOVE>
 {	
 	public NeuralNetwork nn = null;
-	
-	public NNController(String configFile) {
+	public double threshold = 0.5;
+	public NNController(String configFile, double threshold) {
 		super();	
 		nn = NeuralNetwork.Load(configFile);
+		this.threshold = threshold;
 	}
 	
 	public MOVE getMove(Game game, long timeDue) 
-	{		
-		// Get outcomes of each possible move and ask neural network which one is better
-		MOVE possibleMoves[] = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());		
-		double bestScore = Double.MIN_VALUE;
-		MOVE bestMove = MOVE.NEUTRAL;
+	{	
+		// INPUT
+		ArrayList<Double> inputValues = new ArrayList<Double>();
 		int currentPacmanIndex = game.getPacmanCurrentNodeIndex();
-		
-		MOVE validMoves[] = game.getPossibleMoves(currentPacmanIndex);
-		for(MOVE m: validMoves) {
-			ArrayList<Double> inputValues = new ArrayList<Double>();
-			// TODO: Fill with values from game + possibleMove			
-			int newPacmanIndex = game.getNeighbour(currentPacmanIndex, m);
-			// INPUT
-			// Dist to ghosts
-			int dist = game.getShortestPathDistance(newPacmanIndex, game.getGhostCurrentNodeIndex(GHOST.BLINKY));
-			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
-			dist = game.getShortestPathDistance(newPacmanIndex, game.getGhostCurrentNodeIndex(GHOST.PINKY));
-			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
-			dist = game.getShortestPathDistance(newPacmanIndex, game.getGhostCurrentNodeIndex(GHOST.INKY));
-			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
-			dist = game.getShortestPathDistance(newPacmanIndex, game.getGhostCurrentNodeIndex(GHOST.SUE));
-			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
-			// Edible ghosts
-			inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.BLINKY)));
-			inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.PINKY)));
-			inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.INKY)));
-			inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.SUE)));
-			// Pills
-			dist = NearestPillDist(game, newPacmanIndex);
-			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
-			
-			dist = NearestPowerPillDist(game, newPacmanIndex);
-			inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
-
-			
-			// Evaluate nn
-			ArrayList<Double> outputValues = nn.Evaluate(inputValues);
-			// Save best move
-			if(outputValues.get(0) > bestScore) {
-				bestScore = outputValues.get(0);
-				bestMove = m;
+		Node graph[] = game.getCurrentMaze().graph;
+		// Pacman
+		Position pacmanPos = DataTuple.normalizePosition(graph[currentPacmanIndex].x, graph[currentPacmanIndex].y);
+		inputValues.add(pacmanPos.x);
+		inputValues.add(pacmanPos.y);
+		double upLegal = 0.0;
+		double downLegal = 0.0;
+		double leftLegal = 0.0;
+		double rightLegal = 0.0;
+		MOVE possibleMoves[] = game.getPossibleMoves(currentPacmanIndex);	
+		for(MOVE m: possibleMoves) {
+			if(m == MOVE.UP) {
+				upLegal = 1.0;
+			} else if(m == MOVE.DOWN) {
+				downLegal = 1.0;
+			} else if(m == MOVE.LEFT) {
+				leftLegal = 1.0;
+			} else if(m == MOVE.RIGHT) {
+				rightLegal = 1.0;
 			}
-		}		
-		return bestMove;
+		}
+		inputValues.add(upLegal);
+		inputValues.add(downLegal);
+		inputValues.add(leftLegal);
+		inputValues.add(rightLegal);
+		// Ghosts
+		// BLINKY
+		int blinkyIndex = game.getGhostCurrentNodeIndex(GHOST.BLINKY);
+		Position blinkyPos = DataTuple.normalizePosition(graph[blinkyIndex].x, graph[blinkyIndex].y);
+		inputValues.add(blinkyPos.x);
+		inputValues.add(blinkyPos.y);
+		int dist = game.getShortestPathDistance(currentPacmanIndex, blinkyIndex);
+		inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
+		inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.BLINKY)));
+		// PINKY
+		int pinkyIndex = game.getGhostCurrentNodeIndex(GHOST.PINKY);
+		Position pinkyPos = DataTuple.normalizePosition(graph[pinkyIndex].x, graph[pinkyIndex].y);
+		inputValues.add(pinkyPos.x);
+		inputValues.add(pinkyPos.y);
+		dist = game.getShortestPathDistance(currentPacmanIndex, pinkyIndex);
+		inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
+		inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.PINKY)));
+		// INKY
+		int inkyIndex = game.getGhostCurrentNodeIndex(GHOST.INKY);
+		Position inkyPos = DataTuple.normalizePosition(graph[inkyIndex].x, graph[inkyIndex].y);
+		inputValues.add(inkyPos.x);
+		inputValues.add(inkyPos.y);
+		dist = game.getShortestPathDistance(currentPacmanIndex, inkyIndex);
+		inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
+		inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.INKY)));
+		// SUE
+		int sueIndex = game.getGhostCurrentNodeIndex(GHOST.SUE);
+		Position suePos = DataTuple.normalizePosition(graph[sueIndex].x, graph[sueIndex].y);
+		inputValues.add(suePos.x);
+		inputValues.add(suePos.y);
+		dist = game.getShortestPathDistance(currentPacmanIndex, sueIndex);
+		inputValues.add(DataTuple.normalizeDistance(dist, game.getNumberOfNodes()));
+		inputValues.add(DataTuple.normalizeBoolean(game.isGhostEdible(GHOST.SUE)));
+		
+		// Pills
+		int pillIndex = NearestPillIndex(game, currentPacmanIndex);
+		Position pillPos = DataTuple.normalizePosition(graph[pillIndex].x, graph[pillIndex].y);
+		inputValues.add(pillPos.x);
+		inputValues.add(pillPos.y);
+		inputValues.add(DataTuple.normalizeDistance(game.getShortestPathDistance(currentPacmanIndex, pillIndex), game.getNumberOfNodes()));
+		
+		int powerPillIndex = NearestPowerPillIndex(game, currentPacmanIndex);
+		Position powerPillPos = DataTuple.normalizePosition(graph[powerPillIndex].x, graph[powerPillIndex].y);
+		inputValues.add(powerPillPos.x);
+		inputValues.add(powerPillPos.y);
+		inputValues.add(DataTuple.normalizeDistance(game.getShortestPathDistance(currentPacmanIndex, powerPillIndex), game.getNumberOfNodes()));
+
+		
+		// Evaluate nn
+		ArrayList<Double> outputValues = nn.Evaluate(inputValues);
+		// Find selected move (should have 4 outputs)
+		MOVE move = MOVE.NEUTRAL;
+		double max = Double.MIN_VALUE;
+		for(int i = 0; i < outputValues.size(); ++i) {
+			if(outputValues.get(i) > max) {
+				max = outputValues.get(i);
+				if(i == 0) {
+					move = MOVE.UP;
+				} else if(i == 1) {
+					move = MOVE.DOWN;
+				} else if(i == 2) {
+					move = MOVE.LEFT;
+				} else if(i == 3) {
+					move = MOVE.RIGHT;
+				}
+			}
+		}
+		// Last move if below threshold
+		if(max < threshold) {
+			move = MOVE.NEUTRAL;
+		}
+		System.out.println(move + " " + max);
+		return move;
 	}
 
 	
-	private int NearestPillDist(Game game, int pacmanIndex) {
+	private int NearestPillIndex(Game game, int pacmanIndex) {
 		// Nearest pill
 		int pills[] = game.getActivePillsIndices();
 		int nearestDist = Integer.MAX_VALUE;
@@ -84,10 +146,10 @@ public class NNController extends Controller<MOVE>
 				nearestPill = pills[i];
 			}
 		}
-		return nearestDist;
+		return nearestPill;
 	}
 	
-	private int NearestPowerPillDist(Game game, int pacmanIndex) {
+	private int NearestPowerPillIndex(Game game, int pacmanIndex) {
 		// Find nearest power pill
 		int powerPills[] = game.getActivePowerPillsIndices();
 		int nearestPowerPill = -1; // Default
@@ -99,6 +161,6 @@ public class NNController extends Controller<MOVE>
 				nearestPowerPill = powerPills[i];
 			}
 		}
-		return nearestDist;
+		return nearestPowerPill;
 	}
 }

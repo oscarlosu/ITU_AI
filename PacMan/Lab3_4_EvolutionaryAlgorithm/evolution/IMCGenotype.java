@@ -21,7 +21,9 @@ public class IMCGenotype extends Genotype<InfluenceMapController>{
 		genes.add(InfluenceMap.defaultEdibleGhostCost);
 		genes.add(InfluenceMap.defaultEdibleGhostInfluenceDecay);
 		genes.add(InfluenceMap.defaultPowerPillCost);
+		genes.add(InfluenceMap.defaultPowerPillCostGrowth);
 		genes.add(InfluenceMap.defaultPillCost);
+		genes.add(InfluenceMap.defaultPillCostDecline);
 		genes.add(InfluenceMap.defaultGhostCost);
 		genes.add(InfluenceMap.defaultGhostInfluenceDecay);
 		
@@ -35,7 +37,9 @@ public class IMCGenotype extends Genotype<InfluenceMapController>{
 		genes.add(map.getEdibleGhostCost());
 		genes.add(map.getEdibleGhostInfluenceDecay());
 		genes.add(map.getPowerPillCost());
+		genes.add(map.getPowerPillCostGrowth());
 		genes.add(map.getPillCost());
+		genes.add(map.getPillCostGrowth());
 		genes.add(map.getGhostCost());
 		genes.add(map.getGhostInfluenceDecay());		
 	}
@@ -49,7 +53,7 @@ public class IMCGenotype extends Genotype<InfluenceMapController>{
 	}
 	@Override
 	public InfluenceMapController BuildPhenotype() {
-		InfluenceMap map = new InfluenceMap(genes.get(0), genes.get(1), genes.get(2), genes.get(3), genes.get(4), genes.get(5), genes.get(6));
+		InfluenceMap map = new InfluenceMap(genes.get(0), genes.get(1), genes.get(2), genes.get(3), genes.get(4), genes.get(5), genes.get(6), genes.get(7), genes.get(8));
 		return new InfluenceMapController(map);
 	}
 	@Override

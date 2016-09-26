@@ -1,6 +1,7 @@
 package influenceMap;
 
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -16,6 +17,7 @@ import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
+import pacman.game.GameView;
 import pacman.game.internal.Maze;
 import pacman.game.internal.Node;
 import pacman.game.util.IO;
@@ -30,11 +32,16 @@ public class InfluenceMap {
 	@Expose
 	private double powerPillCost;
 	@Expose
+	private double powerPillCostGrowth;
+	@Expose
 	private double pillCost;
+	@Expose
+	private double pillCostDecline;
 	@Expose
 	private double ghostCost;
 	@Expose
 	private double ghostInfluenceDecay;
+	
 	
 	
 	private N[] graph;
@@ -47,7 +54,9 @@ public class InfluenceMap {
 	public static double defaultEdibleGhostCost = 25;
 	public static double defaultEdibleGhostInfluenceDecay = 0.01;
 	public static double defaultPowerPillCost = 5;
-	public static double defaultPillCost = 1;
+	public static double defaultPowerPillCostGrowth = 0.1;
+	public static double defaultPillCost = 50;
+	public static double defaultPillCostDecline = 0.1;
 	public static double defaultGhostCost = 10;
 	public static double defaultGhostInfluenceDecay = 0.01;
 	
@@ -56,7 +65,7 @@ public class InfluenceMap {
 		
 	}
 	
-	public InfluenceMap(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double powerPillCost, double pillCost, double ghostCost, double ghostInfluenceDecay) {
+	public InfluenceMap(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double powerPillCost, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
 		this.maxGameCost = maxGameCost;
 		this.edibleGhostCost = edibleGhostCost;
 		this.edibleGhostInfluenceDecay = edibleGhostInfluenceDecay;
@@ -87,7 +96,7 @@ public class InfluenceMap {
 				}
 				
 				goodGhosts += edibleGhostContribution;
-			} else {
+			} else if (game.getGhostLairTime(g) <= 0) {
 				double distToGhost = game.getShortestPathDistance(nodeIndex, ghostIndex);
 				distToGhost = game.getEuclideanDistance(nodeIndex, ghostIndex);
 				double ghostContribution = influenceCost(ghostCost, ghostInfluenceDecay, distToGhost);
@@ -101,12 +110,12 @@ public class InfluenceMap {
 		// Power pills
 		double powerPills = 0;
 		if(game.getPowerPillIndex(nodeIndex) != -1) {
-			powerPills = - powerPillCost;
+			powerPills = - Math.pow(powerPillCost, badGhosts * powerPillCostGrowth);
 		}
 		// Pills
 		double pills = 0;
 		if(game.getPillIndex(nodeIndex) != -1) {
-			pills = - pillCost;
+			pills = - Math.pow(pillCost, - badGhosts * pillCostDecline);
 		}
 		// Intersections
 		
@@ -148,6 +157,15 @@ public class InfluenceMap {
 					int index = neighbours.get(moves[j]);
 					double gameCost = calculateGameCost(game, index);
 					
+					
+					// Debugging
+					double t = gameCost / maxGameCost;
+					int red = (int)(255 * t);
+					int green = (int)(255 * (1 -t));
+					int blue = 0;
+					GameView.addPoints(game,new Color(red, green, blue),index);
+					
+					
 					graph[i].adj.add(new E(graph[index], moves[j], 1 + gameCost));	
 					// Save best node
 					if(gameCost < min) {
@@ -156,6 +174,7 @@ public class InfluenceMap {
 					}
 				}				
 		}
+		GameView.addPoints(game,new Color(0, 0, 255),bestNode);
 //		System.out.println("============================================================================");	
 //		System.out.println("BEST NODE: " + bestNode + " cost: " + min);	
 //		System.out.println("coords: " + game.getCurrentMaze().graph[bestNode].x + " " + game.getCurrentMaze().graph[bestNode].y);
@@ -346,6 +365,24 @@ public class InfluenceMap {
 	public void setGhostInfluenceDecay(double ghostInfluenceDecay) {
 		this.ghostInfluenceDecay = ghostInfluenceDecay;
 	}
+
+	public double getPowerPillCostGrowth() {
+		return powerPillCostGrowth;
+	}
+
+	public void setPowerPillCostGrowth(double powerPillCostGrowth) {
+		this.powerPillCostGrowth = powerPillCostGrowth;
+	}
+
+	public double getPillCostGrowth() {
+		return pillCostDecline;
+	}
+
+	public void setPillCostGrowth(double pillCostGrowth) {
+		this.pillCostDecline = pillCostGrowth;
+	}
+	
+	
 }
 
 class N implements Comparable<N>

@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import behaviourTree.controller.BTController;
+import controller.InfluenceMapController;
 import dataRecording.DataCollectorController;
 import neuralNetwork.controller.NNController;
 import pacman.controllers.Controller;
@@ -75,13 +76,15 @@ public class Executor
 //		btController.ReadFromFile("bt.config");
 //		exec.runGameTimed(btController, new StarterGhosts(),visual);
 		
-		
-		// 2. NEURAL NETWORK
+		// 2. EVOLUTION / INFLUENCE MAP
+		InfluenceMapController imController = new InfluenceMapController("/InfluenceMap/influenceMap.json");
+		exec.runGameTimed(imController, new StarterGhosts(),visual);
+		// 3. NEURAL NETWORK
 		// Gather data
 		// Run NN player (needs to be trained with the gathered data beforehand)
 		//exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "oscar.data"), new StarterGhosts(),visual);
-		NNController nnController = new NNController("moveNN.json", 0.1);
-		exec.runGameTimed(nnController, new StarterGhosts(),visual);
+//		NNController nnController = new NNController("moveNN.json", 0.1);
+//		exec.runGameTimed(nnController, new StarterGhosts(),visual);
 		
 		
 		

@@ -126,9 +126,9 @@ public class NNController extends Controller<MOVE>
 			}
 		}
 		// Last move if below threshold
-		if(max < threshold) {
-			move = MOVE.NEUTRAL;
-		}
+//		if(max < threshold) {
+//			move = MOVE.NEUTRAL;
+//		}
 		System.out.println(move + " " + max);
 		return move;
 	}

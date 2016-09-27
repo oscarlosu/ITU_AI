@@ -89,32 +89,24 @@ public class InfluenceMap {
 			boolean edible = game.isGhostEdible(g);
 			if(edible) {
 				double distToGhost = game.getShortestPathDistance(nodeIndex, ghostIndex);
-				distToGhost = game.getEuclideanDistance(nodeIndex, ghostIndex);
 				double edibleGhostContribution = - influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost);
-				if(edibleGhostContribution < -0.1) {
-					//System.out.println("edible ghost contribution " + edibleGhostContribution);
-				}
-				
 				goodGhosts += edibleGhostContribution;
 			} else if (game.getGhostLairTime(g) <= 0) {
 				double distToGhost = game.getShortestPathDistance(nodeIndex, ghostIndex);
-				distToGhost = game.getEuclideanDistance(nodeIndex, ghostIndex);
 				double ghostContribution = influenceCost(ghostCost, ghostInfluenceDecay, distToGhost);
-				if(ghostContribution > 0.1) {
-					//System.out.println("ghost contribution " + ghostContribution);
-				}
-				
 				badGhosts += ghostContribution;
 			}
 		}
 		// Power pills
 		double powerPills = 0;
-		if(game.getPowerPillIndex(nodeIndex) != -1) {
+		int powerPillIndex = game.getPowerPillIndex(nodeIndex);
+		if(powerPillIndex != -1 && game.isPowerPillStillAvailable(powerPillIndex)) {
 			powerPills = - Math.pow(powerPillCost, badGhosts * powerPillCostGrowth);
 		}
 		// Pills
 		double pills = 0;
-		if(game.getPillIndex(nodeIndex) != -1) {
+		int pillIndex = game.getPillIndex(nodeIndex);
+		if(pillIndex != -1 && game.isPillStillAvailable(pillIndex)) {
 			pills = - Math.pow(pillCost, - badGhosts * pillCostDecline);
 		}
 		// Intersections

@@ -18,8 +18,8 @@ public class Trainer {
 
 	// Backpropagation params
 	private static WeightUpdateMode weightUpdateMode = WeightUpdateMode.CaseUpdate;
-	private static int maxEpochs = 10000;
-	private static double deltaWeightTerminationThreshold = 0.00001;	
+	private static int maxEpochs = 1000;
+	private static double deltaWeightTerminationThreshold = 0.001;	
 	private static double learningRate = 0.2;
 	
 	public static void main(String[] args) {

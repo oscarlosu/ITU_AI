@@ -2,9 +2,9 @@
   "maxGameCost": 1000.0,
   "edibleGhostCost": 100.0,
   "edibleGhostInfluenceDecay": 0.5,
-  "powerPillCost": 5.0,
+  "powerPillCost": 20.0,
   "powerPillCostGrowth": 1,
-  "pillCost": 50,
+  "pillCost": 80,
   "pillCostDecline": 0.01,
   "ghostCost": 500.0,
   "ghostInfluenceDecay": 0.5

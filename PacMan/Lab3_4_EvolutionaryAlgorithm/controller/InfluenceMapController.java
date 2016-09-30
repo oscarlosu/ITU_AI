@@ -8,6 +8,9 @@ import pacman.game.Game;
 public class InfluenceMapController extends Controller<MOVE> {
 	private InfluenceMap map;
 	private Game lastGame;
+	
+	private int levelIndex = -1;
+	
 	public InfluenceMapController(String filename) {
 		map = InfluenceMap.LoadFromFile(filename);
 	}
@@ -20,10 +23,16 @@ public class InfluenceMapController extends Controller<MOVE> {
 	public MOVE getMove(Game game, long timeDue) {
 		
 		double startTime = System.nanoTime() / 1000000.0;
+		// Only rebuild graph at the start of each level
+		if(levelIndex != game.getCurrentLevel()) {
+			map.createGraph(game);
+			levelIndex = game.getCurrentLevel();
+			System.out.println("MAP RECREATED");
+		}
 		
-		map.createGraph(game);
 		int pacmanNode = game.getPacmanCurrentNodeIndex();
-		int path[] = map.computePathsAStar(pacmanNode, map.getBestNode(), game);
+		map.ChooseTarget(game);
+		int path[] = map.computePathsAStar(pacmanNode, 1000, game);
 		
 		MOVE move =  MOVE.NEUTRAL;
 		if(path.length > 1) {

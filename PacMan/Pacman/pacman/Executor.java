@@ -78,11 +78,11 @@ public class Executor
 		
 		// 2. EVOLUTION / INFLUENCE MAP
 		InfluenceMapController imController = new InfluenceMapController("/InfluenceMap/influenceMap.json");
-		exec.runGameTimed(imController, new StarterGhosts(),visual);
+		exec.runGame(imController, new StarterGhosts(),visual, 100);
 		// 3. NEURAL NETWORK
 		// Gather data
-		// Run NN player (needs to be trained with the gathered data beforehand)
 		//exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "oscar.data"), new StarterGhosts(),visual);
+		// Run NN player (needs to be trained with the gathered data beforehand)		
 //		NNController nnController = new NNController("moveNN.json", 0.1);
 //		exec.runGameTimed(nnController, new StarterGhosts(),visual);
 		

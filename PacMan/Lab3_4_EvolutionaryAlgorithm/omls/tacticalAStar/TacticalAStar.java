@@ -1,4 +1,4 @@
-package influenceMap;
+package omls.tacticalAStar;
 
 
 import java.awt.Color;
@@ -7,10 +7,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.PriorityQueue;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 
 import neuralNetwork.NeuralNetwork;
 import pacman.game.Constants.DM;
@@ -22,24 +18,15 @@ import pacman.game.internal.Maze;
 import pacman.game.internal.Node;
 import pacman.game.util.IO;
 
-public class InfluenceMap {
-	@Expose
+public class TacticalAStar {
 	private double maxGameCost;
-	@Expose
 	private double edibleGhostCost;
-	@Expose
 	private double edibleGhostInfluenceDecay;
-	@Expose
 	private double powerPillCost;
-	@Expose
 	private double powerPillCostGrowth;
-	@Expose
 	private double pillCost;
-	@Expose
 	private double pillCostDecline;
-	@Expose
 	private double ghostCost;
-	@Expose
 	private double ghostInfluenceDecay;
 	
 	
@@ -50,22 +37,30 @@ public class InfluenceMap {
 	
 	
 	// Defaults
-	public static double defaultMaxGameCost = 100;
-	public static double defaultEdibleGhostCost = 25;
-	public static double defaultEdibleGhostInfluenceDecay = 0.01;
+	public static double defaultMaxGameCost = 1000;
+	public static double defaultEdibleGhostCost = 100;
+	public static double defaultEdibleGhostInfluenceDecay = 0.5;
 	public static double defaultPowerPillCost = 5;
-	public static double defaultPowerPillCostGrowth = 0.1;
+	public static double defaultPowerPillCostGrowth = 1;
 	public static double defaultPillCost = 50;
-	public static double defaultPillCostDecline = 0.1;
-	public static double defaultGhostCost = 10;
-	public static double defaultGhostInfluenceDecay = 0.01;
+	public static double defaultPillCostDecline = 0.01;
+	public static double defaultGhostCost = 500;
+	public static double defaultGhostInfluenceDecay = 0.5;
 	
 	
-	public InfluenceMap() {
-		
+	public TacticalAStar() {
+		this.maxGameCost = defaultMaxGameCost;
+		this.edibleGhostCost = defaultEdibleGhostCost;
+		this.edibleGhostInfluenceDecay = defaultEdibleGhostInfluenceDecay;
+		this.powerPillCost = defaultPowerPillCost;
+		this.powerPillCostGrowth = defaultPowerPillCostGrowth;
+		this.pillCost = defaultPillCost;
+		this.pillCostDecline = defaultPillCostDecline;
+		this.ghostCost = defaultGhostCost;
+		this.ghostInfluenceDecay = defaultGhostInfluenceDecay;
 	}
 	
-	public InfluenceMap(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double powerPillCost, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
+	public TacticalAStar(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double powerPillCost, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
 		this.maxGameCost = maxGameCost;
 		this.edibleGhostCost = edibleGhostCost;
 		this.edibleGhostInfluenceDecay = edibleGhostInfluenceDecay;
@@ -269,28 +264,6 @@ public class InfluenceMap {
     		node.reached=null;
     	}
     }
-    
-	public static InfluenceMap LoadFromFile(String filename) {
-		// Create json string
-		GsonBuilder builder = new GsonBuilder();
-	    builder.excludeFieldsWithoutExposeAnnotation();
-	    builder.setPrettyPrinting();
-	    Gson gson = builder.create();
-		String json = IO.loadFile(filename);
-		InfluenceMap map = gson.fromJson(json, InfluenceMap.class);
-		return map;
-	}
-	
-	public void SaveToFile(String filename) {
-		// Create json string
-		GsonBuilder builder = new GsonBuilder();
-	    builder.excludeFieldsWithoutExposeAnnotation();
-	    builder.setPrettyPrinting();
-	    Gson gson = builder.create();
-		String json = gson.toJson(this);
-		// Save to file in myData/
-		IO.saveFile(filename, json, false);
-	}
 	
 	///////////////////////////////////////////////////////////
 	// GETTERS AND SETTERS

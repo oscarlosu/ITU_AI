@@ -1,18 +1,19 @@
-package controller;
-import influenceMap.InfluenceMap;
+package omls.tacticalAStar;
 import pacman.controllers.Controller;
 import pacman.game.Constants.MOVE;
 import pacman.game.internal.Node;
 import pacman.game.Game;
 
-public class InfluenceMapController extends Controller<MOVE> {
-	private InfluenceMap map;
+public class TASController extends Controller<MOVE> {
+	private TacticalAStar map;
 	private Game lastGame;
-	public InfluenceMapController(String filename) {
-		map = InfluenceMap.LoadFromFile(filename);
+	
+	
+	public TASController() {
+		map = new TacticalAStar();
 	}
 	
-	public InfluenceMapController(InfluenceMap map) {
+	public TASController(TacticalAStar map) {
 		this.map = map;
 	}
 	
@@ -37,11 +38,11 @@ public class InfluenceMapController extends Controller<MOVE> {
 		return move;
 	}
 
-	public InfluenceMap getMap() {
+	public TacticalAStar getMap() {
 		return map;
 	}
 
-	public void setMap(InfluenceMap map) {
+	public void setMap(TacticalAStar map) {
 		this.map = map;
 	}
 	

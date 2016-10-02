@@ -11,9 +11,9 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import behaviourTree.controller.BTController;
-import controller.InfluenceMapController;
 import dataRecording.DataCollectorController;
 import neuralNetwork.controller.NNController;
+import omls.tacticalAStar.TASController;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
@@ -77,7 +77,7 @@ public class Executor
 //		exec.runGameTimed(btController, new StarterGhosts(),visual);
 		
 		// 2. EVOLUTION / INFLUENCE MAP
-		InfluenceMapController imController = new InfluenceMapController("/InfluenceMap/influenceMap.json");
+		TASController imController = new TASController();
 		exec.runGameTimed(imController, new StarterGhosts(),visual);
 		// 3. NEURAL NETWORK
 		// Gather data

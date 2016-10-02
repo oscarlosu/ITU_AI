@@ -2,7 +2,7 @@ package evolution;
 
 import java.util.ArrayList;
 
-import controller.InfluenceMapController;
+import tacticalAStar.TASController;
 
 public abstract class Genotype<T> {
 	private double score;

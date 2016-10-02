@@ -11,19 +11,19 @@ import java.util.Random;
 import behaviourTree.Leaf;
 import behaviourTree.Node;
 import behaviourTree.controller.BTController;
-import controller.InfluenceMapController;
 import pacman.Executor;
 import pacman.controllers.Controller;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
+import tacticalAStar.TASController;
 
 public class ArtificialEvolution {
 	// Evolution params
-	private int eliteSize = 4;
-	private int offspringSize = 6;
-	private int populationSize = 10;	
+	private int eliteSize = 40;
+	private int offspringSize = 60;
+	private int populationSize = 100;	
 	// Mutation
 	private double mutationChance = 0.2;
 	private double geneMutationChance = 0.2;
@@ -34,22 +34,28 @@ public class ArtificialEvolution {
 	private double initMutationFactorLowerBound = 0.25;
 	private double initMutationFactorUpperBound = 1.75;
 	// Evaluation
-	private int evaluationTrials = 1;	
-	
+	private int evaluationTrials = 3;
+	private double pillsWeight = 0.7;
+	private double scoreWeight = 0.3;
+	public static int MAX_LEVEL = 4;
+	public static int MAX_SCORE = 82180;
 	// Stats
 	private double avgFitness;
 	private double bestFitness;
 	private double worstFitness;
 	
-	private LinkedList<IMCGenotype> sortedPopulation;	
-	private ArrayList<IMCGenotype> population;
+	private LinkedList<TASGenotype> sortedPopulation;	
+	private ArrayList<TASGenotype> population;
 	
 	public static void main(String args[]) {
 		ArtificialEvolution ae = new ArtificialEvolution();
-		int generations = 10;
-		String championFilename = "/InfluenceMap/evolvedIMC.json";
+		int generations = 100;
+		String championFilename = "/InfluenceMap/evolvedIMC100_100.json";
 		System.out.println("Evolving: (" + generations + " generations)");
+		double startTime = System.nanoTime() / 1000000000.0;
 		ae.Evolve(generations, championFilename);
+		double endTime = System.nanoTime() / 1000000000.0;
+		System.out.println("Total execution time: " + (endTime-startTime) + "s");
 		System.out.println("Done");
 	}
 	
@@ -65,7 +71,7 @@ public class ArtificialEvolution {
 			Replacement();
 			Evaluation();
 			// Save best individual
-			IMCGenotype best = sortedPopulation.get(0);
+			TASGenotype best = sortedPopulation.get(0);
 			best.BuildPhenotype().getMap().SaveToFile(championFilename);
 			// Stats
 			System.out.println("Generation: " + i + " Best fitness: " + bestFitness + " Avg fitness: " + avgFitness + " Worst fitness: " + worstFitness);			
@@ -73,20 +79,20 @@ public class ArtificialEvolution {
 	}
 	
 	private void InitializePopulation() {
-		population = new ArrayList<IMCGenotype>();
+		population = new ArrayList<TASGenotype>();
 		for(int i = 0; i < populationSize; ++i) {
-			IMCGenotype genotype = new IMCGenotype();
+			TASGenotype genotype = new TASGenotype();
 			genotype.BuildRandom(initMutationFactorLowerBound, initMutationFactorUpperBound, initGeneMutationChance);
 			population.add(genotype);
 		}
 	}
 		
 	private void Evaluation() {
-		sortedPopulation = new LinkedList<IMCGenotype>();
+		sortedPopulation = new LinkedList<TASGenotype>();
 		avgFitness = 0;
 		for(int i = 0; i < population.size(); ++i) {
-			IMCGenotype current = population.get(i);
-			InfluenceMapController imController = current.BuildPhenotype();
+			TASGenotype current = population.get(i);
+			TASController imController = current.BuildPhenotype();
 			double score = runExperiment(imController, new StarterGhosts(), evaluationTrials);
 			current.setScore(score);
 			avgFitness += score;
@@ -111,7 +117,7 @@ public class ArtificialEvolution {
 	
 	public double runExperiment(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)
     {
-    	double avgScore=0;
+    	double avgFitness=0;
     	
     	Random rnd=new Random(0);
 		Game game;
@@ -125,11 +131,16 @@ public class ArtificialEvolution {
 		        game.advanceGame(pacManController.getMove(game.copy(),System.currentTimeMillis()+DELAY),
 		        		ghostController.getMove(game.copy(),System.currentTimeMillis()+DELAY));
 			}
+			// Pills score
+			double levelClearedScore = 1.0 / (double)MAX_LEVEL;
+			double pillsScore = levelClearedScore * game.getCurrentLevel() + levelClearedScore * (game.getNumberOfPills() - game.getNumberOfActivePills()) / (double)game.getNumberOfPills();
+			// Fitness
+			avgFitness+= pillsWeight * pillsScore + scoreWeight * game.getScore() / (double)MAX_SCORE;
 			
-			avgScore+=game.getScore();
 		}
-		avgScore = avgScore / trials;
-		return avgScore;
+		avgFitness = avgFitness / trials;
+		//System.out.println(avgFitness);
+		return avgFitness;
     }
 	
 	private void Selection() {
@@ -141,15 +152,15 @@ public class ArtificialEvolution {
 	
 	private void Replacement() {		
 		Random rng = new Random();		
-		LinkedList<IMCGenotype> newPopulation = new LinkedList<IMCGenotype>();
+		LinkedList<TASGenotype> newPopulation = new LinkedList<TASGenotype>();
 		// Create new individuals
 		for(int i = 0; i < offspringSize; ++i) {
 			// Crossover
 			int parent1Index = sampleBoundedHalfNormal(rng, populationSize);
 			int parent2Index = sampleBoundedHalfNormal(rng, populationSize);
-			IMCGenotype parent1 = sortedPopulation.get(parent1Index);
-			IMCGenotype parent2 = sortedPopulation.get(parent2Index);
-			IMCGenotype child = (IMCGenotype) parent1.Crossover(parent2);
+			TASGenotype parent1 = sortedPopulation.get(parent1Index);
+			TASGenotype parent2 = sortedPopulation.get(parent2Index);
+			TASGenotype child = (TASGenotype) parent1.Crossover(parent2);
 			// Mutation
 			if(rng.nextDouble() < mutationChance) {
 				child.Mutate(mutationFactorLowerBound, mutationFactorUpperBound, geneMutationChance);
@@ -165,7 +176,7 @@ public class ArtificialEvolution {
 		population.clear();
 		// Shuffle population to remove any bias from ordering due to algorithm		
 		while(newPopulation.size() > 0) {
-			IMCGenotype g = newPopulation.remove(rng.nextInt(newPopulation.size()));
+			TASGenotype g = newPopulation.remove(rng.nextInt(newPopulation.size()));
 			population.add(g);
 		}
 	}

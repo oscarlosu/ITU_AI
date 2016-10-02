@@ -1,4 +1,4 @@
-package influenceMap;
+package tacticalAStar;
 
 
 import java.awt.Color;
@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,13 +24,15 @@ import pacman.game.internal.Maze;
 import pacman.game.internal.Node;
 import pacman.game.util.IO;
 
-public class InfluenceMap {
+public class TacticalAStar {
 	@Expose
 	private double maxGameCost;
 	@Expose
 	private double edibleGhostCost;
 	@Expose
 	private double edibleGhostInfluenceDecay;
+	@Expose
+	private double edibleGhostDistanceDecline;
 	@Expose
 	private double powerPillCost;
 	@Expose
@@ -47,31 +51,37 @@ public class InfluenceMap {
 	private N[] graph;
 	
 	private int bestNode = -1;
+	private double bestCost = Double.MAX_VALUE;
 	
 	
 	// Defaults
 	public static double defaultMaxGameCost = 100;
 	public static double defaultEdibleGhostCost = 25;
 	public static double defaultEdibleGhostInfluenceDecay = 0.01;
+	public static double defaultEdibleGhostDistanceDecline = 0.01;
 	public static double defaultPowerPillCost = 5;
 	public static double defaultPowerPillCostGrowth = 0.1;
 	public static double defaultPillCost = 50;
 	public static double defaultPillCostDecline = 0.1;
 	public static double defaultGhostCost = 10;
 	public static double defaultGhostInfluenceDecay = 0.01;
+	public static int targetChoiceAreasDepth = 5;
 	
 	
-	public InfluenceMap() {
+	public TacticalAStar() {
 	}
 	
-	public InfluenceMap(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double powerPillCost, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
+	public TacticalAStar(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double edibleGhostDistanceDecline, double powerPillCost, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
 		this.maxGameCost = maxGameCost;
 		this.edibleGhostCost = edibleGhostCost;
 		this.edibleGhostInfluenceDecay = edibleGhostInfluenceDecay;
 		this.powerPillCost = powerPillCost;
+		this.powerPillCostGrowth = powerPillCostGrowth;
 		this.pillCost = pillCost;
+		this.pillCostDecline = pillCostDecline;
 		this.ghostCost = ghostCost;
 		this.ghostInfluenceDecay = ghostInfluenceDecay;
+		this.edibleGhostDistanceDecline = edibleGhostDistanceDecline;		
 	}
 	
 	public double sigmoidFilter(double x) {
@@ -88,6 +98,8 @@ public class InfluenceMap {
 			boolean edible = game.isGhostEdible(g);
 			if(edible) {
 				double distToGhost = game.getShortestPathDistance(nodeIndex, ghostIndex);
+				double distToPacman = game.getShortestPathDistance(nodeIndex, game.getPacmanCurrentNodeIndex());
+				//double edibleGhostContribution = - Math.pow(influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost), - distToPacman * edibleGhostDistanceDecline);
 				double edibleGhostContribution = - influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost);
 				goodGhosts += edibleGhostContribution;
 			} else if (game.getGhostLairTime(g) <= 0) {
@@ -106,66 +118,50 @@ public class InfluenceMap {
 		double pills = 0;
 		int pillIndex = game.getPillIndex(nodeIndex);
 		if(pillIndex != -1 && game.isPillStillAvailable(pillIndex)) {
-			pills = - Math.pow(pillCost, - badGhosts * pillCostDecline);
+			//pills = - Math.pow(pillCost, - badGhosts * pillCostDecline);
+			//pills = - pillCost / Math.pow(Math.E, badGhosts * pillCostDecline);
+			pills = - pillCost;
 		}
 		// Intersections
 		
 		gameCost = badGhosts + goodGhosts + pills + powerPills;
-
-			System.out.println("node " + nodeIndex + " " + maxGameCost * sigmoidFilter(gameCost));
-			System.out.println("bad ghosts " + badGhosts + " goodGhosts" + goodGhosts + " pills " + pills + " power pills " + powerPills);
+		gameCost = maxGameCost * sigmoidFilter(gameCost);
+		// Debugging
+		double v = gameCost / maxGameCost;
+		if(v < 0 || v > 1) {
+			System.out.println("node " + nodeIndex + "value" + v);
+		}
+		v = Math.max(Math.min(v, 1), 0);
+		int red = (int)(255 * v);
+		int green = (int)(255 * (1 -v));
+		int blue = 0;
+		
+		GameView.addPoints(game,new Color(red, green, blue), nodeIndex);
 
 		
-		return maxGameCost * sigmoidFilter(gameCost);
+		return gameCost;
 	}
 	
 	private double influenceCost(double sourceCost, double decayRate, double distance) {		
-		double cost = sourceCost / Math.pow(Math.E, decayRate * distance);
-//		if(cost > 10) {
-//			System.out.println("influence cost " + cost + " distance " + distance);
-//		}		
-		return cost * sourceCost;
+		double cost = sourceCost / Math.pow(Math.E, decayRate * distance);	
+		return cost;
 	}
 	
-	public void ChooseTarget(Game game) {
+	public void ChooseTarget(Game game) {		
 		// Evaluate power pill nodes, junctions, nearest pill and compare with last best
 		int pacmanNode = game.getPacmanCurrentNodeIndex();
-		double minCost = Double.MAX_VALUE;
-		int newBestNode = -1;
+		
+		// Update previous best node cost
+		if(this.bestNode != -1) {
+			double nodeCost = game.getShortestPathDistance(pacmanNode, this.bestNode) + calculateGameCost(game, this.bestNode);
+			bestCost = nodeCost;
+		}		
 		// Power pills
 		int powerPills[] = game.getActivePowerPillsIndices();
-		for(Integer ppIndex : powerPills) {
-			double gameCost = calculateGameCost(game, ppIndex);
-			double nodeCost = game.getShortestPathDistance(pacmanNode, ppIndex) + gameCost;
-			// Debugging
-			double v = gameCost / maxGameCost;
-			int red = (int)(255 * v);
-			int green = (int)(255 * (1 -v));
-			int blue = 0;
-			GameView.addPoints(game,new Color(red, green, blue), ppIndex);
-//			System.out.println("Node " + ppIndex + " cost " + nodeCost + " distance " + (nodeCost - gameCost) + " game cost " + gameCost);
-			if((nodeCost - gameCost) < minCost) {
-				minCost = (nodeCost - gameCost);
-				newBestNode = ppIndex;
-			}
-		}
+		EvaluateNodeCollection(powerPills, game);
 		// Junctions
 		int junctions[] = game.getJunctionIndices();
-		for(Integer junctionIndex : junctions) {
-			double gameCost = calculateGameCost(game, junctionIndex);
-			double nodeCost = game.getShortestPathDistance(pacmanNode, junctionIndex) + gameCost;
-			// Debugging
-			double v = gameCost / maxGameCost;
-			int red = (int)(255 * v);
-			int green = (int)(255 * (1 -v));
-			int blue = 0;
-			GameView.addPoints(game,new Color(red, green, blue), junctionIndex);
-//			System.out.println("Node " + junctionIndex + " cost " + nodeCost + " distance " + (nodeCost - gameCost) + " game cost " + gameCost);
-			if((nodeCost - gameCost) < minCost) {
-				minCost = (nodeCost - gameCost);
-				newBestNode = junctionIndex;
-			}
-		}
+		EvaluateNodeCollection(junctions, game);
 		// Nearest pill
 		int pills[] = game.getActivePillsIndices();
 		int nearestDist = Integer.MAX_VALUE;
@@ -178,45 +174,65 @@ public class InfluenceMap {
 			}
 		}
 		if(nearestPill != -1) {
-			double gameCost = calculateGameCost(game, nearestPill);
-			double nodeCost = game.getShortestPathDistance(pacmanNode, nearestPill) + gameCost;
-			// Debugging
-			double v = gameCost / maxGameCost;
-			int red = (int)(255 * v);
-			int green = (int)(255 * (1 -v));
-			int blue = 0;
-			GameView.addPoints(game,new Color(red, green, blue), nearestPill);
-//			System.out.println("Node " + nearestPill + " cost " + nodeCost + " distance " + (nodeCost - gameCost) + " game cost " + gameCost);
-			if((nodeCost - gameCost) < minCost) {
-				minCost = (nodeCost - gameCost);
-				newBestNode = nearestPill;
+			double nodeCost = game.getShortestPathDistance(pacmanNode, nearestPill) + calculateGameCost(game, nearestPill);
+			if(nodeCost < bestCost) {
+				bestCost = nodeCost;
+				bestNode = nearestPill;
 			}
 		}
-		// Previous best node
-		if(this.bestNode != -1) {
-			double gameCost = calculateGameCost(game, this.bestNode);
-			double nodeCost = game.getShortestPathDistance(pacmanNode, this.bestNode) + gameCost;
-			// Debugging
-			double v = gameCost / maxGameCost;
-			int red = (int)(255 * v);
-			int green = (int)(255 * (1 -v));
-			int blue = 0;
-			GameView.addPoints(game,new Color(red, green, blue), this.bestNode);
-//			System.out.println("Node " + this.bestNode + " cost " + nodeCost + " distance " + (nodeCost - gameCost) + " game cost " + gameCost);
-			if((nodeCost - gameCost) < minCost) {
-				minCost = (nodeCost - gameCost);
-				newBestNode = this.bestNode;
-			}
-		}
-		// Random selection of nodes?
-		// TODO
-		
-		this.bestNode = newBestNode;
-		System.out.println("best " + newBestNode);
-		System.out.println("pacman " + pacmanNode);
-		GameView.addPoints(game,new Color(0, 0, 255), newBestNode);
-	}
+		// Area around pacman
+		Set<Integer> visited = new HashSet<Integer>();		
+		counter = 0;
+		EvaluateNeighbourhood(pacmanNode, visited, game, targetChoiceAreasDepth);		
+		// Area around ghosts
+		for(GHOST g : GHOST.values()) {
+			int nodeIndex = game.getGhostCurrentNodeIndex(g);
+			counter = 0;
+			if(nodeIndex >= 0) {
+				EvaluateNeighbourhood(nodeIndex, visited, game, targetChoiceAreasDepth);		
+			}			
+		}		
 
+		// Debugging
+		GameView.addPoints(game,new Color(0, 0, 255), bestNode);
+	}
+	
+	private void EvaluateNodeCollection(int[] collection, Game game) {
+		int pacmanNode = game.getPacmanCurrentNodeIndex();
+		for(Integer node : collection) {
+			double nodeCost = game.getShortestPathDistance(pacmanNode, node) + calculateGameCost(game, node);
+			if(nodeCost < bestCost) {
+				bestCost = nodeCost;
+				bestNode = node;
+			}
+		}
+	}
+	
+	int counter;
+	private void EvaluateNeighbourhood(int node, Set<Integer> visited, Game game, int depth) {
+		int pacmanNode = game.getPacmanCurrentNodeIndex();
+		for(int neighbour : game.getNeighbouringNodes(node)) {
+			// Only evaluate nodes that haven't been checked before
+			if(!visited.contains(neighbour)) {
+				double gameCost = calculateGameCost(game, neighbour);
+				double nodeCost = game.getShortestPathDistance(pacmanNode, neighbour) + gameCost;
+				if(nodeCost < bestCost) {
+					bestCost = nodeCost;
+					bestNode = neighbour;
+				}
+				visited.add(neighbour);
+				// Recursion
+				if(depth > 0) {
+					EvaluateNeighbourhood(neighbour, visited, game, depth - 1);
+				}	
+				counter++;
+			}	
+		}
+//		if(depth == targetChoiceAreasDepth) {
+//			System.out.println(counter);
+//		}
+	}
+	
 	public void createGraph(Game game)
 	{
 		Node nodes[] = game.getCurrentMaze().graph;
@@ -235,32 +251,10 @@ public class InfluenceMap {
 			
 			for(int j=0;j<moves.length;j++)
 				if(neighbours.containsKey(moves[j])) {
-					int index = neighbours.get(moves[j]);
-//					double gameCost = calculateGameCost(game, index);
-					
-					
-					// Debugging
-//					double t = gameCost / maxGameCost;
-//					int red = (int)(255 * t);
-//					int green = (int)(255 * (1 -t));
-//					int blue = 0;
-//					GameView.addPoints(game,new Color(red, green, blue),index);
-					
-					
-					graph[i].adj.add(new E(graph[index], moves[j], 1));	
-					// Save best node
-//					double pathDist = game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(), index);
-//					if(pathDist + gameCost < min) {
-//						min = pathDist + gameCost;
-//						bestNode = index;
-//					}
-				}				
-		}
-		//GameView.addPoints(game,new Color(0, 0, 255),bestNode);
-//		System.out.println("============================================================================");	
-//		System.out.println("BEST NODE: " + bestNode + " cost: " + min);	
-//		System.out.println("coords: " + game.getCurrentMaze().graph[bestNode].x + " " + game.getCurrentMaze().graph[bestNode].y);
-//		System.out.println("============================================================================");	
+					int index = neighbours.get(moves[j]);				
+					graph[i].adj.add(new E(graph[index], moves[j], 1));
+				}
+		}				
 	}
 	
 	public int[] computePathsAStar(int s, int t, Game game)
@@ -293,14 +287,7 @@ public class InfluenceMap {
             	{
             		//double nodeCost = game.getShortestPathDistance(pacmanNode, nearestPill) + calculateGameCost(game, nearestPill);
             		double gameCost = calculateGameCost(game, next.node.index);
-	                double currentDistance = next.cost + gameCost;
-	                
-	                // Debugging
-					double v = gameCost / maxGameCost;
-					int red = (int)(255 * v);
-					int green = (int)(255 * (1 -v));
-					int blue = 0;
-					GameView.addPoints(game,new Color(red, green, blue), next.node.index);
+	                double currentDistance = next.cost + gameCost;					
 	
 	                if (!open.contains(next.node) && !closed.contains(next.node))
 	                {
@@ -371,14 +358,14 @@ public class InfluenceMap {
     	}
     }
     
-	public static InfluenceMap LoadFromFile(String filename) {
+	public static TacticalAStar LoadFromFile(String filename) {
 		// Create json string
 		GsonBuilder builder = new GsonBuilder();
 	    builder.excludeFieldsWithoutExposeAnnotation();
 	    builder.setPrettyPrinting();
 	    Gson gson = builder.create();
 		String json = IO.loadFile(filename);
-		InfluenceMap map = gson.fromJson(json, InfluenceMap.class);
+		TacticalAStar map = gson.fromJson(json, TacticalAStar.class);
 		return map;
 	}
 	
@@ -467,17 +454,26 @@ public class InfluenceMap {
 		this.powerPillCostGrowth = powerPillCostGrowth;
 	}
 
-	public double getPillCostGrowth() {
+	public double getPillCostDecline() {
 		return pillCostDecline;
 	}
 
-	public void setPillCostGrowth(double pillCostGrowth) {
+	public void setPillCostDecline(double pillCostGrowth) {
 		this.pillCostDecline = pillCostGrowth;
 	}
 
 	public void setBestNode(int bestNode) {
 		this.bestNode = bestNode;
 	}
+
+	public double getEdibleGhostDistanceDecline() {
+		return edibleGhostDistanceDecline;
+	}
+
+	public void setEdibleGhostDistanceDecline(double edibleGhostDistanceDecline) {
+		this.edibleGhostDistanceDecline = edibleGhostDistanceDecline;
+	}
+	
 	
 	
 }

@@ -1,9 +1,11 @@
 {
-  "maxGameCost": 67.82838748252121,
-  "edibleGhostCost": 33.41256307948888,
-  "edibleGhostInfluenceDecay": 27.456049262689476,
-  "powerPillCost": 0.005350805207027758,
-  "pillCost": 8.650210989154264,
-  "ghostCost": 3.057780601820991,
-  "ghostInfluenceDecay": 31.377368401128454
+  "maxGameCost": 163.13390403033844,
+  "edibleGhostCost": 19.371929108890974,
+  "edibleGhostInfluenceDecay": 30.903191995381313,
+  "powerPillCost": 0.0029355522835595757,
+  "powerPillCostGrowth": 0.0,
+  "pillCost": 0.11300598141888056,
+  "pillCostDecline": 0.0,
+  "ghostCost": 0.1629846603737962,
+  "ghostInfluenceDecay": 10.370000350644846
 }

@@ -1,11 +1,12 @@
 {
   "maxGameCost": 1000.0,
   "edibleGhostCost": 100.0,
-  "edibleGhostInfluenceDecay": 0.5,
+  "edibleGhostInfluenceDecay": 1,
+  "edibleGhostDistanceDecline": 0.5,
   "powerPillCost": 20.0,
-  "powerPillCostGrowth": 1,
-  "pillCost": 80,
-  "pillCostDecline": 0.01,
+  "powerPillCostGrowth": 0.5,
+  "pillCost": 50,
+  "pillCostDecline": 1,
   "ghostCost": 500.0,
   "ghostInfluenceDecay": 0.5
 }

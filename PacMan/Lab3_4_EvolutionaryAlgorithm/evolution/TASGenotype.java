@@ -3,43 +3,44 @@ package evolution;
 import java.util.ArrayList;
 import java.util.Random;
 
-import controller.InfluenceMapController;
-import influenceMap.InfluenceMap;
+import tacticalAStar.TASController;
+import tacticalAStar.TacticalAStar;
 
-public class IMCGenotype extends Genotype<InfluenceMapController>{
+public class TASGenotype extends Genotype<TASController>{
 	private ArrayList<Double> genes;
 	
-	public IMCGenotype() {
+	public TASGenotype() {
 		genes = new ArrayList<Double>();
 	}
 
 	@Override
 	public void BuildRandom(double lower, double upper, double geneMutationChance) {
 		genes = new ArrayList<Double>();
-		genes.add(InfluenceMap.defaultMaxGameCost);
-		genes.add(InfluenceMap.defaultEdibleGhostCost);
-		genes.add(InfluenceMap.defaultEdibleGhostCost);
-		genes.add(InfluenceMap.defaultEdibleGhostInfluenceDecay);
-		genes.add(InfluenceMap.defaultPowerPillCost);
-		genes.add(InfluenceMap.defaultPowerPillCostGrowth);
-		genes.add(InfluenceMap.defaultPillCost);
-		genes.add(InfluenceMap.defaultPillCostDecline);
-		genes.add(InfluenceMap.defaultGhostCost);
-		genes.add(InfluenceMap.defaultGhostInfluenceDecay);
+		genes.add(TacticalAStar.defaultMaxGameCost);
+		genes.add(TacticalAStar.defaultEdibleGhostCost);
+		genes.add(TacticalAStar.defaultEdibleGhostInfluenceDecay);
+		genes.add(TacticalAStar.defaultEdibleGhostDistanceDecline);
+		genes.add(TacticalAStar.defaultPowerPillCost);
+		genes.add(TacticalAStar.defaultPowerPillCostGrowth);
+		genes.add(TacticalAStar.defaultPillCost);
+		genes.add(TacticalAStar.defaultPillCostDecline);
+		genes.add(TacticalAStar.defaultGhostCost);
+		genes.add(TacticalAStar.defaultGhostInfluenceDecay);
 		
 		Mutate(lower, upper, geneMutationChance);
 	}
 	@Override
-	public void BuildGenotype(InfluenceMapController phenotype) {
-		InfluenceMap map = phenotype.getMap();
+	public void BuildGenotype(TASController phenotype) {
+		TacticalAStar map = phenotype.getMap();
 		genes = new ArrayList<Double>();
 		genes.add(map.getMaxGameCost());
 		genes.add(map.getEdibleGhostCost());
 		genes.add(map.getEdibleGhostInfluenceDecay());
+		genes.add(map.getEdibleGhostDistanceDecline());
 		genes.add(map.getPowerPillCost());
 		genes.add(map.getPowerPillCostGrowth());
 		genes.add(map.getPillCost());
-		genes.add(map.getPillCostGrowth());
+		genes.add(map.getPillCostDecline());
 		genes.add(map.getGhostCost());
 		genes.add(map.getGhostInfluenceDecay());		
 	}
@@ -52,9 +53,9 @@ public class IMCGenotype extends Genotype<InfluenceMapController>{
 		}		
 	}
 	@Override
-	public InfluenceMapController BuildPhenotype() {
-		InfluenceMap map = new InfluenceMap(genes.get(0), genes.get(1), genes.get(2), genes.get(3), genes.get(4), genes.get(5), genes.get(6), genes.get(7), genes.get(8));
-		return new InfluenceMapController(map);
+	public TASController BuildPhenotype() {
+		TacticalAStar map = new TacticalAStar(genes.get(0), genes.get(1), genes.get(2), genes.get(3), genes.get(4), genes.get(5), genes.get(6), genes.get(7), genes.get(8), genes.get(9));
+		return new TASController(map);
 	}
 	@Override
 	public void Mutate(double lower, double upper, double geneMutationChance) {
@@ -63,8 +64,8 @@ public class IMCGenotype extends Genotype<InfluenceMapController>{
 			if(rng.nextDouble() < geneMutationChance) {
 				// Mutation factor from gaussian distribution in range [lower, upper]
 				double originalValue = genes.get(i);
-				double mutationFactor = rng.nextGaussian();
-				mutationFactor = Math.abs(lower + (mutationFactor + 1) * ((upper - lower) / 2.0));
+				double mutationFactor = Math.abs(rng.nextGaussian());
+				mutationFactor = Math.abs(lower + mutationFactor * (upper - lower));
 				double newValue = mutationFactor * originalValue;
 				genes.set(i, newValue);
 			}			
@@ -72,11 +73,11 @@ public class IMCGenotype extends Genotype<InfluenceMapController>{
 		
 	}
 	@Override
-	public Genotype<InfluenceMapController> Crossover(Genotype<InfluenceMapController> other) {
-		IMCGenotype child = new IMCGenotype();
+	public Genotype<TASController> Crossover(Genotype<TASController> other) {
+		TASGenotype child = new TASGenotype();
 		Random rng = new Random();
 		for(int i = 0; i < genes.size(); ++i) {
-				double crossoverFactor = (rng.nextGaussian() + 1) /2.0;
+				double crossoverFactor = Math.abs(rng.nextGaussian());
 				double newValue = Lerp(this.genes.get(i), other.GetGenes().get(i), crossoverFactor);
 				child.GetGenes().add(newValue);		
 		}

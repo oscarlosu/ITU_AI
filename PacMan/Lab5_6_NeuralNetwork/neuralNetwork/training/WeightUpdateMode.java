@@ -1,4 +1,4 @@
-package training;
+package neuralNetwork.training;
 
 public enum WeightUpdateMode {
 	CaseUpdate,

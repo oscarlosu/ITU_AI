@@ -3,9 +3,9 @@ package neuralNetwork.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import dataRecording.DataTuple;
-import dataRecording.Position;
 import neuralNetwork.NeuralNetwork;
+import neuralNetwork.dataRecording.DataTuple;
+import neuralNetwork.dataRecording.Position;
 import pacman.controllers.Controller;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;

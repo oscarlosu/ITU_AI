@@ -251,7 +251,7 @@ public class QLearning {
                 resetMaze();
                 moveCounter=0;
                 return;
-            } else if(moveCounter > maxMoves) {
+            } else if(moveCounter < maxMoves) {
             	System.out.println("Goal NOT reached in "+moveCounter+" moves.");
             	resetMaze();
                 moveCounter=0;
@@ -275,7 +275,6 @@ public class QLearning {
         		app.runLearningLoop(agent);
         	}
         	agent.printQtable();
-        	agent.explorationChance = 0;
         	app.runTest(agent, maxMoves);
         	
         } catch (Exception e){

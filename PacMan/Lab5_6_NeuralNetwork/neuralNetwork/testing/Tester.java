@@ -1,4 +1,4 @@
-package Testing;
+package neuralNetwork.testing;
 
 import java.util.ArrayList;
 
@@ -7,9 +7,9 @@ import neuralNetwork.Connection;
 import neuralNetwork.NeuralNetwork;
 import neuralNetwork.Neuron;
 import neuralNetwork.Sigmoid;
-import training.Backpropagation;
-import training.TrainingTuple;
-import training.WeightUpdateMode;
+import neuralNetwork.training.Backpropagation;
+import neuralNetwork.training.TrainingTuple;
+import neuralNetwork.training.WeightUpdateMode;
 
 public class Tester {
 	public static void main(String[] args) {

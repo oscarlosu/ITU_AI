@@ -1,4 +1,4 @@
-package dataRecording;
+package neuralNetwork.dataRecording;
 
 public class Position {
 	public double x;

@@ -1,10 +1,10 @@
-package training;
+package neuralNetwork.training;
 
 import java.util.ArrayList;
 
-import dataRecording.DataSaverLoader;
-import dataRecording.DataTuple;
 import neuralNetwork.NeuralNetwork;
+import neuralNetwork.dataRecording.DataSaverLoader;
+import neuralNetwork.dataRecording.DataTuple;
 import pacman.game.Constants.MOVE;
 
 public class Trainer {	

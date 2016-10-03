@@ -1,4 +1,4 @@
-package dataRecording;
+package neuralNetwork.dataRecording;
 
 import pacman.game.Constants;
 import pacman.game.Constants.DM;

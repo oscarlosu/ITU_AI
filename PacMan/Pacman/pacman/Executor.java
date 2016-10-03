@@ -11,8 +11,8 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import behaviourTree.controller.BTController;
-import dataRecording.DataCollectorController;
 import neuralNetwork.controller.NNController;
+import neuralNetwork.dataRecording.DataCollectorController;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;

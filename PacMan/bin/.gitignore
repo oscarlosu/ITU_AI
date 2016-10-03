@@ -1,12 +1,2 @@
 /com/
-/training/
-/dataRecording/
-/neuralNetwork/
-/pacman/
-/behaviourTree/
-/InfluenceMap/
-/influenceMap/
-/evolution/
-/controller/
-/tacticalAStart/
-/tacticalAStar/
+/qlearning/

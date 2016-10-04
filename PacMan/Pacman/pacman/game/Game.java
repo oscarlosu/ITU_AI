@@ -87,7 +87,15 @@ public final class Game
 		this.seed=seed;
 		rnd=new Random(seed);
 		
-		_init(0);
+		_init(0, false);
+	}
+	
+	public Game(long seed, boolean randomInitPacmanPos)
+	{						
+		this.seed=seed;
+		rnd=new Random(seed);
+		
+		_init(0, randomInitPacmanPos);		
 	}
 	
 	/**
@@ -101,7 +109,15 @@ public final class Game
 		this.seed=seed;
 		rnd=new Random(seed);
 		
-		_init(initialMaze);		
+		_init(initialMaze, false);		
+	}
+	
+	public Game(long seed,int initialMaze, boolean randomInitPacmanPos)
+	{						
+		this.seed=seed;
+		rnd=new Random(seed);
+		
+		_init(initialMaze, randomInitPacmanPos);		
 	}
 	
 	/**
@@ -114,7 +130,7 @@ public final class Game
 	 *
 	 * @param initialMaze the initial maze
 	 */
-	private void _init(int initialMaze)
+	private void _init(int initialMaze, boolean randomInitPacmanPos)
 	{
 		mazeIndex=initialMaze;
 		score=currentLevelTime=levelCount=totalTime=0;
@@ -133,7 +149,12 @@ public final class Game
 		_setPills(currentMaze=mazes[mazeIndex]);
 		_initGhosts();
 		
-		pacman=new PacMan(currentMaze.initialPacManNodeIndex,MOVE.LEFT,NUM_LIVES,false);		
+		
+		if(randomInitPacmanPos) {
+			pacman=new PacMan(getPillIndices()[new Random().nextInt(getPillIndices().length)],MOVE.LEFT,NUM_LIVES,false);
+		} else {
+			pacman=new PacMan(currentMaze.initialPacManNodeIndex,MOVE.LEFT,NUM_LIVES,false);
+		}		
 	}
 	
 	/**

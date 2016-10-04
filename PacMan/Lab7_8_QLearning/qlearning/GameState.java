@@ -6,10 +6,19 @@ import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class GameState {
-	public int distToInky;
-	public int distToPinky;
-	public int distToBlinky;
-	public int distToSue;
+	private final int distThresholds[] = {10, 20, 30, 40, 50};
+	private enum DISTANCE {
+		CLOSE,
+		NEAR,
+		MEDIUM,
+		FAR,
+		AWAY,
+		LOST
+	}
+	public DISTANCE distToInky;
+	public DISTANCE distToPinky;
+	public DISTANCE distToBlinky;
+	public DISTANCE distToSue;
 	
 	public MOVE dirToInky;
 	public MOVE dirToPinky;
@@ -24,8 +33,8 @@ public class GameState {
 	public MOVE dirToPill;
 	public MOVE dirToPowerPill;
 	
-	public int distToPill;
-	public int distToPowerPill;
+	public DISTANCE distToPill;
+	public DISTANCE distToPowerPill;
 	
 	public GameState() {
 		
@@ -34,10 +43,14 @@ public class GameState {
 	public GameState(Game game) {
 		int pacman = game.getPacmanCurrentNodeIndex();
 		// Ghosts
-		distToInky = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.INKY));
-		distToPinky = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.PINKY));
-		distToBlinky = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.BLINKY));
-		distToSue = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.SUE));
+		int numberDistToInky = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.INKY));
+		distToInky = getDistance(numberDistToInky);
+		int numberDistToPinky = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.PINKY));
+		distToPinky = getDistance(numberDistToPinky);
+		int numberDistToBlinky = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.BLINKY));
+		distToBlinky = getDistance(numberDistToBlinky);
+		int numberDistToSue = game.getShortestPathDistance(pacman, game.getGhostCurrentNodeIndex(GHOST.SUE));
+		distToSue = getDistance(numberDistToSue);
 		
 		dirToInky = game.getNextMoveTowardsTarget(pacman, game.getGhostCurrentNodeIndex(GHOST.INKY), DM.PATH);
 		dirToPinky = game.getNextMoveTowardsTarget(pacman, game.getGhostCurrentNodeIndex(GHOST.PINKY), DM.PATH);
@@ -61,7 +74,7 @@ public class GameState {
 			}
 		}		
 		dirToPill = game.getNextMoveTowardsTarget(pacman, nearestPill, DM.PATH);
-		distToPill = minDist;
+		distToPill = getDistance(minDist);
 		// Power pill
 		int powerPills[] = game.getActivePillsIndices();
 		minDist = Integer.MAX_VALUE;
@@ -74,7 +87,19 @@ public class GameState {
 			}
 		}		
 		dirToPowerPill = game.getNextMoveTowardsTarget(pacman, nearestPowerPill, DM.PATH);
-		distToPowerPill = minDist;
+		distToPowerPill = getDistance(minDist);
+	}
+	
+	private DISTANCE getDistance(int numberDist) {
+		// Default to furthest
+		DISTANCE dist = DISTANCE.values()[DISTANCE.values().length - 1];
+		for(int i = 0; i < distThresholds.length; ++i) {
+			if(numberDist <= distThresholds[i]) {
+				dist = DISTANCE.values()[i];
+				break;
+			}
+		}
+		return dist;
 	}
 	
 	public GameState clone() {
@@ -103,31 +128,33 @@ public class GameState {
 	}
 	
 	public int hashCode() {
-		String s = "";
-		s += Integer.toString(distToInky);
-		s += Integer.toString(distToPinky);
-		s += Integer.toString(distToBlinky);
-		s += Integer.toString(distToSue);
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(distToInky.ordinal());
+		builder.append(distToPinky.ordinal());
+		builder.append(distToBlinky.ordinal());
+		builder.append(distToSue.ordinal());
 		
 		// Not completely sure, but this order 
 		// (having variable length fields grouped) 
 		// might avoid some hash collisions
-		s += Integer.toString(distToPill);
-		s += Integer.toString(distToPowerPill);
+		builder.append(distToPill.ordinal());
+		builder.append(distToPowerPill.ordinal());
 		
-		s += Integer.toString(dirToInky.ordinal());
-		s += Integer.toString(dirToPinky.ordinal());
-		s += Integer.toString(dirToBlinky.ordinal());
-		s += Integer.toString(dirToSue.ordinal());		
+		builder.append(dirToInky.ordinal());
+		builder.append(dirToPinky.ordinal());
+		builder.append(dirToBlinky.ordinal());
+		builder.append(dirToSue.ordinal());		
 		
-		s += Integer.toString(dirToPill.ordinal());
-		s += Integer.toString(dirToPowerPill.ordinal());
+		builder.append(dirToPill.ordinal());
+		builder.append(dirToPowerPill.ordinal());
 		
-		s += Integer.toString(isEdibleInky ? 1 : 0);
-		s += Integer.toString(isEdiblePinky ? 1 : 0);
-		s += Integer.toString(isEdibleBlinky ? 1 : 0);
-		s += Integer.toString(isEdibleSue ? 1 : 0);	
 		
-		return s.hashCode();
+		builder.append(isEdibleInky ? 1 : 0);
+		builder.append(isEdiblePinky ? 1 : 0);
+		builder.append(isEdibleBlinky ? 1 : 0);
+		builder.append(isEdibleSue ? 1 : 0);
+		
+		return builder.toString().hashCode();
 	}
 }

@@ -166,7 +166,7 @@ public class QTable {
     	qValues[prevAction] = newQValue;
     	table.put(prevState.hashCode(), qValues);
     	
-    	System.out.println(qValues[0] + " " + qValues[1] + " " + qValues[2] + " " + qValues[3] + " " + qValues[4]);
+    	//System.out.println(qValues[0] + " " + qValues[1] + " " + qValues[2] + " " + qValues[3] + " " + qValues[4]);
     }
 
     /**
@@ -200,19 +200,26 @@ public class QTable {
     }
     
     void Serialize(String filename) {
-    	String obj = "";
-    	obj += Integer.toString(actionRange);
-    	obj += "\n";
+    	StringBuilder builder = new StringBuilder();
+    	builder.append(actionRange);
+    	builder.append('\n');
     	Set<Integer> keys = table.keySet();
+    	int progress = 0;
     	for(Integer k : keys) {
-    		obj += Integer.toString(k);
+    		builder.append(k);
     		for(float v : table.get(k)) {
-    			obj += " ";
-    			obj += Float.toString(v);
+    			builder.append(' ');
+    			builder.append(v);
     		}
-    		obj += "\n";
+    		builder.append('\n');
+    		float lastProgress = (progress * 100.0f) / keys.size();
+    		++progress;
+    		int newProgress = (int)(progress * 100.0f) / keys.size();
+    		if(lastProgress < newProgress && newProgress % 5 == 0) {
+    			System.out.println(newProgress + " % completed.");
+    		}
     	}
-		IO.saveFile(filename, obj, false);
+		IO.saveFile(filename, builder.toString(), false);
     }
     static QTable Deserialize(String filename) {
     	QTable q = new QTable();

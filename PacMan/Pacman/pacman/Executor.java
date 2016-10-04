@@ -28,6 +28,7 @@ import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
+import qlearning.QLController;
 import tacticalAStar.TASController;
 
 import static pacman.game.Constants.*;
@@ -76,16 +77,17 @@ public class Executor
 //		exec.runGameTimed(btController, new StarterGhosts(),visual);
 		
 		// 2. EVOLUTION / INFLUENCE MAP
-		TASController imController = new TASController("/InfluenceMap/influenceMap.json");
-		exec.runGameTimed(imController, new StarterGhosts(),visual);
+//		TASController imController = new TASController("/InfluenceMap/influenceMap.json");
+//		exec.runGameTimed(imController, new StarterGhosts(),visual);
 		// 3. NEURAL NETWORK
 		// Gather data
 		//exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "oscar.data"), new StarterGhosts(),visual);
 		// Run NN player (needs to be trained with the gathered data beforehand)		
 //		NNController nnController = new NNController("moveNN.json", 0.1);
 //		exec.runGameTimed(nnController, new StarterGhosts(),visual);
-		
-		
+		// 4. Q-LEARNING
+		QLController qlController = new QLController("/QLearning/qTable.json");
+		exec.runGameTimed(qlController, new StarterGhosts(),visual);
 		
 		//exec.runGameTimed(controller,new StarterGhosts(),visual);
 		

@@ -99,7 +99,7 @@ public class GameState {
 		
 		copy.distToPill = this.distToPill;
 		copy.distToPowerPill = this.distToPowerPill;
-		return null;
+		return copy;
 	}
 	
 	public int hashCode() {

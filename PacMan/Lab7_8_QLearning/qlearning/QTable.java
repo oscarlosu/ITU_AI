@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,14 +24,12 @@ public class QTable {
      * directly as the actual map. Each map state has an array of Q values
      * for all the actions available for that state.
      */
-    @Expose
     HashMap<Integer, float[]> table;
     /**
      * the actionRange variable determines the number of actions available
      * at any map state, and therefore the number of Q values in each entry
      * of the Q-table.
      */
-    @Expose
     int actionRange;
 
     // E-GREEDY Q-LEARNING SPECIFIC VARIABLES
@@ -166,6 +165,8 @@ public class QTable {
     	float newQValue = oldQValue + learningRate * (reward + gammaValue * bestFutureQValue - oldQValue);
     	qValues[prevAction] = newQValue;
     	table.put(prevState.hashCode(), qValues);
+    	
+    	System.out.println(qValues[0] + " " + qValues[1] + " " + qValues[2] + " " + qValues[3] + " " + qValues[4]);
     }
 
     /**
@@ -182,7 +183,9 @@ public class QTable {
         float[] actions = getValues(state);
         if(actions==null){
             float[] initialActions = new float[actionRange];
-            for(int i=0;i<actionRange;i++) initialActions[i]=0.f;
+            for(int i=0;i<actionRange;i++) {
+            	initialActions[i]=0.f;
+            }
             table.put(state.hashCode(), initialActions);
             return initialActions;
         }
@@ -197,23 +200,34 @@ public class QTable {
     }
     
     void Serialize(String filename) {
-    	// Create json string
-		GsonBuilder builder = new GsonBuilder();
-	    builder.excludeFieldsWithoutExposeAnnotation();
-	    builder.setPrettyPrinting();
-	    Gson gson = builder.create();
-		String json = gson.toJson(this);
-		// Save to file in "myData/" + filename
-		IO.saveFile(filename, json, false);
+    	String obj = "";
+    	obj += Integer.toString(actionRange);
+    	obj += "\n";
+    	Set<Integer> keys = table.keySet();
+    	for(Integer k : keys) {
+    		obj += Integer.toString(k);
+    		for(float v : table.get(k)) {
+    			obj += " ";
+    			obj += Float.toString(v);
+    		}
+    		obj += "\n";
+    	}
+		IO.saveFile(filename, obj, false);
     }
     static QTable Deserialize(String filename) {
-    	// Read json string
-		GsonBuilder builder = new GsonBuilder();
-	    builder.excludeFieldsWithoutExposeAnnotation();
-	    builder.setPrettyPrinting();
-	    Gson gson = builder.create();
-		String json = IO.loadFile(filename);
-		QTable q = gson.fromJson(json, QTable.class);
+    	QTable q = new QTable();
+    	String file = IO.loadFile(filename);
+    	String lines[] = file.split("\n");
+    	q.actionRange = Integer.parseInt(lines[0]);
+    	for(int i = 1; i < lines.length; ++i) {
+    		String elements[] = lines[i].split(" ");
+    		int key = Integer.parseInt(elements[0]);
+    		float values[] = new float[q.actionRange];
+    		for(int j = 1; j < q.actionRange; ++j) {
+    			values[j] = Float.parseFloat(elements[j]);
+    		}
+    		q.table.put(key, values);
+    	}
 		return q;
     }
 }

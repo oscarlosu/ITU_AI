@@ -18,9 +18,7 @@ import java.util.Iterator;
 
 /**
  * TODO:
- * - Serialize QTable
  * - Define rewards
- * - Define states
  * 
  * @author Oscar
  *
@@ -36,16 +34,19 @@ public class QLearning {
         Random rnd = new Random(0);
 		Game game = new Game(rnd.nextLong());
 		
-        while(!game.gameOver()) {        	
-            GameState state = new GameState();
-            // TODO
-            int action = pacmanAgent.qTable.getNextAction(state);
-            game.advanceGame(MOVE.values()[action], ghostController.getMove(game.copy(),System.currentTimeMillis()+DELAY));
+        while(!game.gameOver()) {    
+        	MOVE move = MOVE.NEUTRAL;
+        	if(game.isJunction(game.getPacmanCurrentNodeIndex())) {
+        		GameState state = new GameState(game);
+                int action = pacmanAgent.qTable.getNextAction(state);
+                move = MOVE.values()[action];
+        	}
+            
+            game.advanceGame(move, ghostController.getMove(game.copy(),System.currentTimeMillis()+DELAY));
             moveCounter++;
 
             // REWARDS AND ADJUSTMENT OF WEIGHTS SHOULD TAKE PLACE HERE
-            GameState newState = new GameState();
-            // TODO
+            GameState newState = new GameState(game);
             float reward = 0;
             // TODO            
             pacmanAgent.qTable.updateQvalue(reward, newState);
@@ -57,12 +58,14 @@ public class QLearning {
     public static void main(String s[]) {
         QLController agent = new QLController();
         int generations = 10;
+        String filename = "QLearning/qTable.json";
         
         try{
         	// Train
         	for(int i = 0; i < generations; ++i) {
         		runLearningLoop(agent, new StarterGhosts());
         	}
+        	agent.qTable.Serialize(filename);
         	// Test
         	Executor exec = new Executor();
         	exec.runGameTimed(agent, new StarterGhosts(), true);

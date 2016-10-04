@@ -5,6 +5,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+
+import pacman.game.util.IO;
+import tacticalAStar.TacticalAStar;
+
 
 public class QTable {
     /**
@@ -16,16 +23,14 @@ public class QTable {
      * directly as the actual map. Each map state has an array of Q values
      * for all the actions available for that state.
      */
-    HashMap<GameState, float[]> table;
-    /**
-     * Used to keep track of how many times a certain state has been explored.
-     */
-    HashMap<GameState, int[]> exploreTable;
+    @Expose
+    HashMap<Integer, float[]> table;
     /**
      * the actionRange variable determines the number of actions available
      * at any map state, and therefore the number of Q values in each entry
      * of the Q-table.
      */
+    @Expose
     int actionRange;
 
     // E-GREEDY Q-LEARNING SPECIFIC VARIABLES
@@ -77,8 +82,12 @@ public class QTable {
     QTable(int actionRange){
         randomGenerator = new Random();
         this.actionRange=actionRange;
-        table = new HashMap<GameState, float[]>();
-        exploreTable = new HashMap<GameState, int[]>();
+        table = new HashMap<Integer, float[]>();
+    }
+    
+    QTable(){
+        randomGenerator = new Random();
+        table = new HashMap<Integer, float[]>();
     }
 
     int getNextAction(GameState state){
@@ -88,27 +97,7 @@ public class QTable {
         } else {
             prevAction=getBestAction(state);
         }
-        // Update visit count
-        updateVisitCount(prevState, prevAction);
         return prevAction;
-    }
-    
-    void updateVisitCount(GameState state, int action) {
-    	int[] visits = getVisitCount(state);
-    	visits[action] += 1;
-    	exploreTable.put(state, visits);
-    }
-    
-    int[] getVisitCount(GameState state) {
-    	if(!exploreTable.containsKey(state)) {
-    		int[] visits = new int[actionRange];
-            for(int i=0;i<actionRange;i++) visits[i]=0;
-            exploreTable.put(state, visits);
-            return visits;
-    	} else {
-    		int[] visits = exploreTable.get(state);
-    		return visits;
-    	}
     }
 
     /**
@@ -148,21 +137,7 @@ public class QTable {
      * @return index of action to take
      */
     int explore(GameState state) {    
-    	// Find state-action pairs that have been taken the least amount of times
-    	// and choose one of them at random
-    	int visits[] = getVisitCount(state);
-    	int leastVisits = Integer.MAX_VALUE;
-    	ArrayList<Integer> leastVisited = new ArrayList<Integer>();
-    	for(int i = 0; i < visits.length; ++i) {
-    		if(visits[i] < leastVisits) {
-    			leastVisits = visits[i];
-    			leastVisited.clear();
-    			leastVisited.add(i);
-    		} else if(visits[i] == leastVisits) {
-    			leastVisited.add(i);
-    		}
-    	}
-		return leastVisited.get(randomGenerator.nextInt(leastVisited.size()));
+    	return randomGenerator.nextInt(actionRange);
     }
 
 
@@ -190,7 +165,7 @@ public class QTable {
     	}
     	float newQValue = oldQValue + learningRate * (reward + gammaValue * bestFutureQValue - oldQValue);
     	qValues[prevAction] = newQValue;
-    	table.put(prevState, qValues);
+    	table.put(prevState.hashCode(), qValues);
     }
 
     /**
@@ -208,7 +183,7 @@ public class QTable {
         if(actions==null){
             float[] initialActions = new float[actionRange];
             for(int i=0;i<actionRange;i++) initialActions[i]=0.f;
-            table.put(state, initialActions);
+            table.put(state.hashCode(), initialActions);
             return initialActions;
         }
 		return actions;
@@ -219,5 +194,26 @@ public class QTable {
             return table.get(state);
         }
         return null;
+    }
+    
+    void Serialize(String filename) {
+    	// Create json string
+		GsonBuilder builder = new GsonBuilder();
+	    builder.excludeFieldsWithoutExposeAnnotation();
+	    builder.setPrettyPrinting();
+	    Gson gson = builder.create();
+		String json = gson.toJson(this);
+		// Save to file in "myData/" + filename
+		IO.saveFile(filename, json, false);
+    }
+    static QTable Deserialize(String filename) {
+    	// Read json string
+		GsonBuilder builder = new GsonBuilder();
+	    builder.excludeFieldsWithoutExposeAnnotation();
+	    builder.setPrettyPrinting();
+	    Gson gson = builder.create();
+		String json = IO.loadFile(filename);
+		QTable q = gson.fromJson(json, QTable.class);
+		return q;
     }
 }

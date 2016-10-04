@@ -24,7 +24,11 @@ import java.util.Iterator;
  *
  */
 public class QLearning {    
-
+	public static float pillEatenReward = 1;
+	public static float powerPillEatenReward = 0.5f;
+	public static float ghostEatenReward = 10;
+	public static float pacmanEatenReward = -20;
+	
     public static String getMoveName(int action){
         return MOVE.values()[action].toString();
     }
@@ -47,8 +51,26 @@ public class QLearning {
 
             // REWARDS AND ADJUSTMENT OF WEIGHTS SHOULD TAKE PLACE HERE
             GameState newState = new GameState(game);
-            float reward = 0;
-            // TODO            
+            float reward = 0; 
+            if(game.wasPillEaten()) {
+            	reward += pillEatenReward;
+            }
+            
+            if(game.wasPowerPillEaten()) {
+            	reward += powerPillEatenReward;
+            }
+            
+            for(GHOST g : GHOST.values()) {
+            	 if(game.wasGhostEaten(g)) {
+                 	reward += ghostEatenReward;
+                 }
+            }
+           
+            if(game.wasPacManEaten()) {
+            	reward += pacmanEatenReward;
+            }
+            
+            
             pacmanAgent.qTable.updateQvalue(reward, newState);
 
             //Thread.sleep(1000);

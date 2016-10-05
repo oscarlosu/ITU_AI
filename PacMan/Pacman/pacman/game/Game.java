@@ -151,7 +151,7 @@ public final class Game
 		
 		
 		if(randomInitPacmanPos) {
-			pacman=new PacMan(getPillIndices()[new Random().nextInt(getPillIndices().length)],MOVE.LEFT,NUM_LIVES,false);
+			pacman=new PacMan(getJunctionIndices()[new Random().nextInt(getJunctionIndices().length)],MOVE.LEFT,NUM_LIVES,false);
 		} else {
 			pacman=new PacMan(currentMaze.initialPacManNodeIndex,MOVE.LEFT,NUM_LIVES,false);
 		}		

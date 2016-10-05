@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
+import pacman.game.Game;
+import pacman.game.Constants.MOVE;
 import pacman.game.util.IO;
 import tacticalAStar.TacticalAStar;
 
@@ -89,10 +91,10 @@ public class QTable {
         table = new HashMap<Integer, float[]>();
     }
 
-    int getNextAction(GameState state){
+    int getNextAction(Game game, GameState state){
         prevState = state.clone();
         if(randomGenerator.nextFloat()<explorationChance){
-            prevAction=explore(state);
+            prevAction=explore(game);
         } else {
             prevAction=getBestAction(state);
         }
@@ -135,8 +137,11 @@ public class QTable {
      *
      * @return index of action to take
      */
-    int explore(GameState state) {    
-    	return randomGenerator.nextInt(actionRange);
+    int explore(Game game) {
+    	MOVE lastMove = game.getPacmanLastMoveMade();
+		MOVE possibleMoves[] = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
+    	int index = randomGenerator.nextInt(possibleMoves.length);
+    	return possibleMoves[index].ordinal();
     }
 
 

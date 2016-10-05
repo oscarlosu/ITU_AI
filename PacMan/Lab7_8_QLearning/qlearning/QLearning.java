@@ -21,10 +21,10 @@ import java.util.Iterator;
 
 /**
  * TODO:
- * - Replace int distances with abstract distances
  * - Improve rewards?
- * - Rewards accumulated between junctions
- * - Initialize pacman in different positions
+ * 		+ Reward for increasing abstract distance to ghosts
+ * - Add escape junction direction to GameState
+ * - Reverse direction in between junctions if ghosts closer than nearest junction
  * 
  * @author Oscar
  *
@@ -39,7 +39,7 @@ public class QLearning {
         return MOVE.values()[action].toString();
     }
 
-    static int runLearningLoop(QLController pacmanAgent, Controller<EnumMap<GHOST,MOVE>> ghostController, boolean visual, boolean randomInitPos) throws Exception {
+    static int runLearningLoop(QLController pacmanAgent, Controller<EnumMap<GHOST,MOVE>> ghostController, boolean visual, boolean randomInitPos, boolean training) throws Exception {
         Random rnd = new Random(0);
 		Game game = new Game(rnd.nextLong(), randomInitPos);
 		float reward = 0;
@@ -49,32 +49,11 @@ public class QLearning {
 			MarkJunctions(game);
 		}
 			
-        while(!game.gameOver()) {        	
-        	MOVE move = MOVE.NEUTRAL;        	
-        	boolean updateQTable = pacmanAgent.qTable.prevState != null;
+        while(!game.gameOver()) {        	       	
+        	boolean updateQTable = training && pacmanAgent.qTable.prevState != null;
         	boolean isAtJunction = game.isJunction(game.getPacmanCurrentNodeIndex());
         	// Choose action  
-        	if(isAtJunction) {  
-        		GameState state = new GameState(game);          				
-    			int action = pacmanAgent.qTable.getNextAction(state);
-                move = MOVE.values()[action];                
-        	} else {
-        		MOVE lastMove = game.getPacmanLastMoveMade();
-        		MOVE possibleMoves[] = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
-        		ArrayList<MOVE> possibleMovesNoReversal = new ArrayList<MOVE>();
-        		boolean possible = false;
-        		for(MOVE m : possibleMoves) {
-        			if(m != lastMove.opposite()) {
-        				possibleMovesNoReversal.add(m);
-        				if(m == move) {
-        					possible = true;
-        				}        				
-        			}
-        		}
-        		if(!possible && possibleMovesNoReversal.size() > 0) {
-        			move = possibleMovesNoReversal.get(new Random().nextInt(possibleMovesNoReversal.size()));
-        		}
-        	}
+        	MOVE move = pacmanAgent.getMove(game,System.currentTimeMillis()+DELAY);
         	// Take action  
         	game.advanceGame(move, ghostController.getMove(game.copy(),System.currentTimeMillis()+DELAY));
         	if(visual) {
@@ -107,7 +86,7 @@ public class QLearning {
                 reward = 0;       
         	}
 
-        	//Thread.sleep(10); 
+        	//Thread.sleep(300); 
              
         }
         if(game.getCurrentLevel() > 1) {
@@ -126,20 +105,24 @@ public class QLearning {
         String filename = "QLearning/qTable.json";
         boolean visual = false;
         boolean randomInitPos = true;
+        boolean train = false;
         try{
-        	// Train
-        	System.out.println("QLearning started:");
-        	for(int i = 0; i < generations; ++i) {
-        		int score = runLearningLoop(agent, new StarterGhosts(), visual, randomInitPos);
-        		System.out.println("Generation " + i + ". Score: " + score);
-        	}
-        	System.out.println("Saving qTable... (" + agent.qTable.table.size() + " entries)");
-        	agent.qTable.Serialize(filename);
-        	System.out.println("qTable saved.");
+        	if(train) {
+        		// Train
+            	System.out.println("QLearning started:");
+            	for(int i = 0; i < generations; ++i) {
+            		int score = runLearningLoop(agent, new StarterGhosts(), visual, randomInitPos, train);
+            		if(i % 1000 == 0) {
+            			System.out.println("Generation " + i + ": Score: " + score + ". QTable entries: " + agent.qTable.table.size());
+            		}        		
+            	}
+            	System.out.println("Saving qTable... (" + agent.qTable.table.size() + " entries)");
+            	agent.qTable.Serialize(filename);
+            	System.out.println("qTable saved.");
+        	}        	
         	System.out.println("Testing...");
         	// Test
-        	Executor exec = new Executor();
-        	exec.runGameTimed(agent, new StarterGhosts(), true);
+        	runLearningLoop(agent, new StarterGhosts(), true, randomInitPos, train);
         	System.out.println("Test ended.");
         	
         } catch (Exception e){

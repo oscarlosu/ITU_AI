@@ -6,14 +6,12 @@ import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class GameState {
-	private final int distThresholds[] = {10, 20, 30, 40, 50};
+	private final int distThresholds[] = {10, 30};
 	private enum DISTANCE {
-		CLOSE,
 		NEAR,
 		MEDIUM,
-		FAR,
-		AWAY,
-		LOST
+		FAR
+
 	}
 	public DISTANCE distToInky;
 	public DISTANCE distToPinky;

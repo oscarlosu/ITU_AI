@@ -6,8 +6,8 @@ import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class GameState {
-	private final int distThresholds[] = {10, 30};
-	private enum DISTANCE {
+	private static int distThresholds[] = {10, 30};
+	public enum DISTANCE {
 		NEAR,
 		MEDIUM,
 		FAR
@@ -88,7 +88,7 @@ public class GameState {
 		distToPowerPill = getDistance(minDist);
 	}
 	
-	private DISTANCE getDistance(int numberDist) {
+	public static DISTANCE getDistance(int numberDist) {
 		// Default to furthest
 		DISTANCE dist = DISTANCE.values()[DISTANCE.values().length - 1];
 		for(int i = 0; i < distThresholds.length; ++i) {

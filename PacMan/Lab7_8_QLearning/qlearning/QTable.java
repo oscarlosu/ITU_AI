@@ -210,13 +210,23 @@ public class QTable {
     	builder.append('\n');
     	Set<Integer> keys = table.keySet();
     	int progress = 0;
-    	for(Integer k : keys) {
-    		builder.append(k);
+    	for(Integer k : keys) {    		
+    		// Only save entry if not all zeroes
+    		boolean allZeroes = true;
     		for(float v : table.get(k)) {
-    			builder.append(' ');
-    			builder.append(v);
+    			if(v != 0.0) {
+    				allZeroes = false;
+    			}
     		}
-    		builder.append('\n');
+    		if(!allZeroes) {
+    			builder.append(k);
+    			for(float v : table.get(k)) {
+    				builder.append(' ');
+        			builder.append(v);
+        		} 
+    			builder.append('\n');
+    		}
+    		
     		float lastProgress = (progress * 100.0f) / keys.size();
     		++progress;
     		int newProgress = (int)(progress * 100.0f) / keys.size();

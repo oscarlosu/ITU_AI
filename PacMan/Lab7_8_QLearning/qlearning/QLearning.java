@@ -25,6 +25,7 @@ import java.util.Iterator;
  * - Improve rewards?
  * 		+ Reward for increasing abstract distance to ghosts
  * 		+ Punishment for staying near ghosts
+ * 		+ Pill rewards based on distance
  * - Add escape junction direction to GameState
  * - Hack junctions for faster training
  * 

@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import behaviourTree.controller.BTController;
+import mcts.MCTSController;
 import neuralNetwork.controller.NNController;
 import neuralNetwork.dataRecording.DataCollectorController;
 import pacman.controllers.Controller;
@@ -83,13 +84,17 @@ public class Executor
 		// Gather data
 		//exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "oscar.data"), new StarterGhosts(),visual);
 		// Run NN player (needs to be trained with the gathered data beforehand)		
-		NNController nnController = new NNController("moveNN.json", 0.1);
-		exec.runGameTimed(nnController, new StarterGhosts(),visual);
+//		NNController nnController = new NNController("moveNN.json", 0.1);
+//		exec.runGameTimed(nnController, new StarterGhosts(),visual);
 		// 4. Q-LEARNING
 //		QLController qlController = new QLController("/QLearning/qTable.json");
 //		exec.runGameTimed(qlController, new StarterGhosts(),visual);
 //		
 		//exec.runGameTimed(controller,new StarterGhosts(),visual);
+		
+		// 5. MCTS
+		MCTSController mctsController = new MCTSController();
+		exec.runGameTimed(mctsController, new StarterGhosts(),visual);
 		
 		//*/
 		

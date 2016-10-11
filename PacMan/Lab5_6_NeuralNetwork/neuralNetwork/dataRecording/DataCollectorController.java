@@ -33,9 +33,20 @@ public class DataCollectorController extends HumanController{
 		if(chosenMove == MOVE.NEUTRAL || !legalMove) {
 			chosenMove = game.getPacmanLastMoveMade();
 		}
+		// Verify that adjusted move is legal
+		legalMove = false;
+		for(MOVE m: possibleMoves) {
+			if(m == chosenMove) {
+				legalMove = true;
+				break;
+			}
+		}
+		// Only save data tuples for junctions
+		if(game.isJunction(game.getPacmanCurrentNodeIndex()) && legalMove) {
+			DataTuple data = new DataTuple(game, chosenMove);
+			DataSaverLoader.SavePacManData(data, filename);
+		}
 		
-		DataTuple data = new DataTuple(game, chosenMove);
-		DataSaverLoader.SavePacManData(data, filename);
 		
 		// Execute action indicated by player input		
 		return chosenMove;

@@ -1,0 +1,23 @@
+Training started. Params:
+dataFilename oscar.data
+trainedNNFilename moveNN.json
+inputLayerSize 28
+hiddenLayerSize 20
+outputLayerSize 4
+weightUpdateMode CaseUpdate
+maxEpochs 1000
+deltaWeightTerminationThreshold 0.001
+learningRate 0.2 (constant)
+...
+Training data size: 11433
+Epoch 100:  avgError 0.07472720028792794 avgDeltaWeightBias 0.14951864742959786
+Epoch 200:  avgError 0.060865931464075575 avgDeltaWeightBias 0.12578505534234213
+Epoch 300:  avgError 0.05092613000456289 avgDeltaWeightBias 0.10457055380355326
+Epoch 400:  avgError 0.046794594588953804 avgDeltaWeightBias 0.09655937960539084
+Epoch 500:  avgError 0.04479216255072514 avgDeltaWeightBias 0.09282693013900961
+Epoch 600:  avgError 0.04427615127605133 avgDeltaWeightBias 0.09148196560374007
+Epoch 700:  avgError 0.041331599500977124 avgDeltaWeightBias 0.08388118462218792
+Epoch 800:  avgError 0.04136542672347103 avgDeltaWeightBias 0.08390835602119781
+Epoch 900:  avgError 0.03940242834981112 avgDeltaWeightBias 0.07939652444644935
+Epoch 1000:  avgError 0.0375454857573386 avgDeltaWeightBias 0.07685189468440833
+Training ended.

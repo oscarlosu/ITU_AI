@@ -17,7 +17,7 @@ public class Backpropagation {
 		this.deltaWeightTerminationThreshold = deltaWeightTerminationThreshold;
 	}
 	
-	public void train(NeuralNetwork nn, ArrayList<TrainingTuple> data, double learningRate) {
+	public void train(NeuralNetwork nn, ArrayList<TrainingTuple> data, double startLearningRate) {
 		boolean terminate = false;
 		int epoch = 1;
 		while(!terminate) {			
@@ -29,6 +29,8 @@ public class Backpropagation {
 			nn.CleanTrainingValues();
 			// Will stop unless maxEpochs have been computed and some deltaWeights are bigger than the threshold
 			terminate = true;
+			
+			double learningRate = startLearningRate;
 			for(TrainingTuple tuple: data) {
 				// Propagate inputs forward
 				ArrayList<Double> outputValues = nn.Evaluate(tuple.getInputValues());
@@ -60,7 +62,7 @@ public class Backpropagation {
 				for(int i = 0; i < nn.getInputLayerSize(); ++i) {
 					Neuron n = nn.getInputNeuron(i);
 					for(Connection c: n.getOutputs()) {
-						double deltaWeight = (learningRate / (double)epoch) * c.getTo().getError() * c.getFrom().getValue();
+						double deltaWeight = learningRate * c.getTo().getError() * c.getFrom().getValue();
 						// Save deltaWeight for Epoch Update and termination
 						c.setDeltaWeight(c.getDeltaWeight() + deltaWeight);
 						avgDeltaWeightBias += Math.abs(deltaWeight);
@@ -78,7 +80,7 @@ public class Backpropagation {
 				for(int i = 0; i < nn.getHiddenLayerSize(); ++i) {
 					Neuron n = nn.getHiddenNeuron(i);
 					for(Connection c: n.getOutputs()) {
-						double deltaWeight = (learningRate / (double)epoch) * c.getTo().getError() * c.getFrom().getValue();
+						double deltaWeight = learningRate * c.getTo().getError() * c.getFrom().getValue();
 						// Save deltaWeight for Epoch Update and termination
 						c.setDeltaWeight(c.getDeltaWeight() + deltaWeight);
 						avgDeltaWeightBias += Math.abs(deltaWeight);
@@ -103,7 +105,7 @@ public class Backpropagation {
 //				}
 				for(int i = 0; i < nn.getHiddenLayerSize(); ++i) {
 					Neuron n = nn.getHiddenNeuron(i);
-					double deltaBias = (learningRate / (double)epoch) * n.getError();
+					double deltaBias = learningRate * n.getError();
 					n.setDeltaBias(n.getDeltaBias() + deltaBias);
 					if(Math.abs(n.getDeltaBias()) > deltaWeightTerminationThreshold) {
 						terminate = false;
@@ -115,7 +117,7 @@ public class Backpropagation {
 				}
 				for(int i = 0; i < nn.getOutputLayerSize(); ++i) {
 					Neuron n = nn.getOutputNeuron(i);
-					double deltaBias = (learningRate / (double)epoch) * n.getError();
+					double deltaBias = learningRate * n.getError();
 					n.setDeltaBias(n.getDeltaBias() + deltaBias);
 					if(Math.abs(n.getDeltaBias()) > deltaWeightTerminationThreshold) {
 						terminate = false;

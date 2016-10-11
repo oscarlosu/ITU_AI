@@ -82,10 +82,10 @@ public class Executor
 //		exec.runGameTimed(imController, new StarterGhosts(),visual);
 		// 3. NEURAL NETWORK
 		// Gather data
-		//exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "oscar.data"), new StarterGhosts(),visual);
+		//exec.runGameTimed(new DataCollectorController(new KeyBoardInput(), "martinJunctions5.data"), new StarterGhosts(),visual);
 		// Run NN player (needs to be trained with the gathered data beforehand)		
-//		NNController nnController = new NNController("moveNN.json", 0.1);
-//		exec.runGameTimed(nnController, new StarterGhosts(),visual);
+		NNController nnController = new NNController("moveJunctionsNN.json");
+		exec.runGameTimed(nnController, new StarterGhosts(),visual);
 		// 4. Q-LEARNING
 //		QLController qlController = new QLController("/QLearning/qTable.json");
 //		exec.runGameTimed(qlController, new StarterGhosts(),visual);
@@ -93,8 +93,8 @@ public class Executor
 		//exec.runGameTimed(controller,new StarterGhosts(),visual);
 		
 		// 5. MCTS
-		MCTSController mctsController = new MCTSController();
-		exec.runGameTimed(mctsController, new StarterGhosts(),visual);
+//		MCTSController mctsController = new MCTSController();
+//		exec.runGameTimed(mctsController, new StarterGhosts(),visual);
 		
 		//*/
 		

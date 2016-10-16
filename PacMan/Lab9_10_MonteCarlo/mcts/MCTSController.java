@@ -19,7 +19,7 @@ public class MCTSController extends Controller<MOVE> {
 			long startTime = System.currentTimeMillis();
 			move =  mcts.runMCTS(game, timeDue);
 			long endTime = System.currentTimeMillis();			
-			System.out.println("MCTS execution time: " + (endTime -startTime) + " ms");
+			//System.out.println("MCTS execution time: " + (endTime -startTime) + " ms");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

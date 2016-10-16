@@ -8,6 +8,7 @@ import pacman.game.Constants.MOVE;
 import pacman.controllers.Controller;
 import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.controllers.examples.StarterGhosts;
+import pacman.controllers.examples.StarterPacMan;
 import pacman.game.Game;
 
 public class MCTS {
@@ -37,9 +38,11 @@ public class MCTS {
 	
 	
 	Controller<EnumMap<GHOST,MOVE>> ghostSimulator;
+	Controller<MOVE> pacmanSimulator;
 	
 	MCTS(){
 		ghostSimulator = new Legacy2TheReckoning();
+		pacmanSimulator = new StarterPacMan();
 	}
 	
 	/**
@@ -68,7 +71,7 @@ public class MCTS {
             	//System.out.println("Iteration: " + iterations + " simulated frames: " + simulatedFrames);
             	
             }
-            System.out.println("Iterations: " + iterations);
+            //System.out.println("Iterations: " + iterations);
             /*
              * Get the action that directs to the best node
              */
@@ -108,9 +111,7 @@ public class MCTS {
 	private float DefaultPolicy() {
 		Game st = currentNode.state.copy();
 		while(!TerminalState(st) && simulatedFrames < maxFramesPerIteration){
-			MOVE pacmanAction = RandomAction(st, st.getPacmanCurrentNodeIndex());			
-			//EnumMap<GHOST, MOVE> ghostActions = RandomGhostActions(st);
-			st.advanceGame(pacmanAction, ghostSimulator.getMove(st, 0));
+			st.advanceGame(pacmanSimulator.getMove(st, 0), ghostSimulator.getMove(st, 0));
 			simulatedFrames++;
 		}		
 		return st.getScore();

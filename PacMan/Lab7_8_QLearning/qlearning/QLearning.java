@@ -6,6 +6,8 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.Executor;
 import pacman.controllers.Controller;
+import pacman.controllers.examples.Legacy;
+import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
 import pacman.game.GameView;
@@ -43,6 +45,10 @@ public class QLearning {
 	public static HashMap<Integer, Integer> nearestJunctionLookup;
 	public static int currentLevel = -1;
 	
+	public static float score;
+	public static float time;
+	public static float level;
+	
     public static String getMoveName(int action){
         return MOVE.values()[action].toString();
     }
@@ -56,16 +62,13 @@ public class QLearning {
 			gv = new GameView(game).showGame();
 			//MarkJunctions(game);
 		}
-			
+		float lastScore = 0;
         while(!game.gameOver()) {
-        	// If new level is reached, cache nearest junction
-//        	if(currentLevel != game.getCurrentLevel()) {
-//        		CreateNearestJunctionLookup(game);
-//        		pacmanAgent.nearestJunctionLookup = nearestJunctionLookup;
-//        		currentLevel = game.getCurrentLevel();
-//        	}
         	boolean updateQTable = training && pacmanAgent.qTable.prevState != null;
         	boolean isAtJunction = game.isJunction(game.getPacmanCurrentNodeIndex());
+        	if(isAtJunction && !updateQTable) {
+        		lastScore = game.getScore();
+        	}
         	// Choose action  
         	MOVE move = pacmanAgent.getMove(game,System.currentTimeMillis()+DELAY);
         	// Take action  
@@ -74,39 +77,16 @@ public class QLearning {
         		//MarkJunctions(game);
 	        	gv.repaint();
         	}
-        	// Accumulate reward between junctions
-        	if(game.wasPillEaten()) {
-            	reward += pillEatenReward;
-            } else {
-            	reward += pillNotEatenReward;
-            }
-            
-            if(game.wasPowerPillEaten()) {
-            	reward += powerPillEatenReward;
-            }
-            
-            int pacmanNode = game.getPacmanCurrentNodeIndex();
-            for(GHOST g : GHOST.values()) {
-            	int ghostNode = game.getGhostCurrentNodeIndex(g);
-            	 if(game.wasGhostEaten(g)) {
-                 	reward += ghostEatenReward;
-                 } else if(!game.isGhostEdible(g) && game.getGhostLairTime(g) <= 0 && 
-                		 	GameState.getDistance(game.getShortestPathDistance(pacmanNode, ghostNode)) == DISTANCE.values()[0]) {
-            		 reward += ghostNearReward;
-            	 }
-            }
-           
-            if(game.wasPacManEaten()) {
-            	reward += pacmanEatenReward;
-            }
 
             // Update QTable at junctions
-            if(isAtJunction && updateQTable) {  
-        		GameState newState = new GameState(game);
-                //System.out.println("Reward " + reward);
-                pacmanAgent.qTable.updateQvalue(reward, newState); 
-                //System.out.println("Reward " + reward);
-                reward = 0;       
+            if(isAtJunction && updateQTable) { 
+            	// Reward is score increment or zero if pacman was eaten
+            	reward = game.getScore() - lastScore;
+            	reward = game.wasPacManEaten() ? 0 : reward;
+                pacmanAgent.qTable.updateQvalue(reward, new GameState(game)); 
+                //System.out.println("Reward " + reward); 
+                // Update last score
+                lastScore = game.getScore();
         	}
 
             if(visual) {
@@ -116,6 +96,11 @@ public class QLearning {
         if(game.getCurrentLevel() > 1) {
         	System.out.println("Reached level " + game.getCurrentLevel());
         }
+        
+        score += game.getScore();
+    	time += game.getTotalTime();
+    	level += game.getCurrentLevel() + 1;
+        
         return game.getScore();
     }
 
@@ -167,7 +152,7 @@ public class QLearning {
             	System.out.println("QLearning started:");
             	long startTime = System.currentTimeMillis();
             	for(int i = 0; i < generations; ++i) {
-            		int score = runLearningLoop(agent, new StarterGhosts(), visual, randomInitPos, true);
+            		int score = runLearningLoop(agent, new Legacy2TheReckoning(), visual, randomInitPos, true);
             		if(i % 1000 == 0) {
             			long endTime = System.currentTimeMillis();
             			System.out.println("Generation " + i + "(" + (endTime - startTime)+ " ms): Score: " + score + ". QTable entries: " + agent.qTable.table.size());
@@ -180,7 +165,30 @@ public class QLearning {
         	}        	
         	System.out.println("Testing...");
         	// Test
-        	runLearningLoop(agent, new StarterGhosts(), true, false, false);
+        	score = 0;
+        	time = 0;
+        	level = 0;
+        	for(int i = 0; i < 100; ++i) {
+        		runLearningLoop(agent, new StarterGhosts(), false, false, false);
+        	}
+        	System.out.println("Starter Ghosts. Score: " + score / 100.0f + " Time: " + time / 100.0f + " Level: " + level / 100.0f);
+        	
+        	score = 0;
+        	time = 0;
+        	level = 0;
+        	for(int i = 0; i < 100; ++i) {
+        		runLearningLoop(agent, new Legacy(), false, false, false);
+        	}
+        	System.out.println("Legacy Ghosts. Score: " + score / 100.0f + " Time: " + time / 100.0f + " Level: " + level / 100.0f);
+        	
+        	score = 0;
+        	time = 0;
+        	level = 0;
+        	for(int i = 0; i < 100; ++i) {
+        		runLearningLoop(agent, new Legacy2TheReckoning(), false, false, false);
+        	}
+        	System.out.println("Legacy 2 The Reckoning Ghosts. Score: " + score / 100.0f + " Time: " + time / 100.0f + " Level: " + level / 100.0f);
+        	
         	System.out.println("Test ended.");
         	
         } catch (Exception e){

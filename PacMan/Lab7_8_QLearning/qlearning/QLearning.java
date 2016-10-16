@@ -144,7 +144,7 @@ public class QLearning {
         int generations = 500000;
         String filename = "QLearning/qTable.json";
         boolean visual = false;
-        boolean randomInitPos = true;
+        boolean randomInitPos = false;
         boolean train = true;
         try{
         	if(train) {

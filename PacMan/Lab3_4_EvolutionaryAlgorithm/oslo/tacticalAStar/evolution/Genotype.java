@@ -1,8 +1,8 @@
-package tacticalAStar.evolution;
+package oslo.tacticalAStar.evolution;
 
 import java.util.ArrayList;
 
-import tacticalAStar.TASController;
+import oslo.tacticalAStar.TASController;
 
 public abstract class Genotype<T> {
 	private double score;

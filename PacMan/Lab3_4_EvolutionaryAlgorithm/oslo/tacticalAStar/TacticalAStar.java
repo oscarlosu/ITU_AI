@@ -1,4 +1,4 @@
-package tacticalAStar;
+package oslo.tacticalAStar;
 
 
 import java.awt.Color;

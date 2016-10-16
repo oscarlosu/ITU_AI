@@ -9,13 +9,13 @@ import neuralNetwork.NeuralNetwork;
 import neuralNetwork.Neuron;
 import neuralNetwork.dataRecording.DataTuple;
 import neuralNetwork.dataRecording.Position;
+import oslo.qlearning.NodeMOVE;
 import pacman.controllers.Controller;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 import pacman.game.internal.Maze;
 import pacman.game.internal.Node;
-import qlearning.NodeMOVE;
 
 /*
  * This is the class you need to modify for your entry. In particular, you need to

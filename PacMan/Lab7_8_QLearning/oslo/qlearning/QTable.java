@@ -1,4 +1,4 @@
-package qlearning;
+package oslo.qlearning;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +10,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
+import oslo.tacticalAStar.TacticalAStar;
 import pacman.game.Game;
 import pacman.game.Constants.MOVE;
 import pacman.game.util.IO;
-import tacticalAStar.TacticalAStar;
 
 
 public class QTable {

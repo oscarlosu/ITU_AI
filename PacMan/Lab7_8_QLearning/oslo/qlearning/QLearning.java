@@ -1,7 +1,8 @@
-package qlearning;
+package oslo.qlearning;
 
 import java.util.Random;
 
+import oslo.qlearning.GameState.DISTANCE;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.Executor;
@@ -11,7 +12,6 @@ import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
 import pacman.game.GameView;
-import qlearning.GameState.DISTANCE;
 
 import static pacman.game.Constants.DELAY;
 

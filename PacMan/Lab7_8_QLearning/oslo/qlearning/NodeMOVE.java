@@ -1,4 +1,4 @@
-package qlearning;
+package oslo.qlearning;
 
 import pacman.game.Constants.MOVE;
 

@@ -1,4 +1,4 @@
-package qlearning.tutorial;
+package oslo.qlearning.tutorial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

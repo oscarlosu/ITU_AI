@@ -1,4 +1,4 @@
-package tacticalAStar.evolution;
+package oslo.tacticalAStar.evolution;
 
 import static pacman.game.Constants.DELAY;
 
@@ -11,13 +11,13 @@ import java.util.Random;
 import behaviourTree.Leaf;
 import behaviourTree.Node;
 import behaviourTree.controller.BTController;
+import oslo.tacticalAStar.TASController;
 import pacman.Executor;
 import pacman.controllers.Controller;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
-import tacticalAStar.TASController;
 
 public class ArtificialEvolution {
 	// Evolution params

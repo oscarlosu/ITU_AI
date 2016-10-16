@@ -1,10 +1,10 @@
-package tacticalAStar.evolution;
+package oslo.tacticalAStar.evolution;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-import tacticalAStar.TASController;
-import tacticalAStar.TacticalAStar;
+import oslo.tacticalAStar.TASController;
+import oslo.tacticalAStar.TacticalAStar;
 
 public class TASGenotype extends Genotype<TASController>{
 	private ArrayList<Double> genes;

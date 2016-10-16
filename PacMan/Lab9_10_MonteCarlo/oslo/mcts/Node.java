@@ -1,7 +1,10 @@
-package mcts.tutorial;
+package oslo.mcts;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pacman.game.Constants.MOVE;
+import pacman.game.Game;
 
 /**
  * Class to store node information, e.g.
@@ -12,15 +15,15 @@ import java.util.List;
  */
 public class Node{
 	
-	public char[] state;
+	public Game state;
 	public List<Node> children = new ArrayList<Node>();
 	public Node parent = null;
-	public int parentAction=-1;
+	public MOVE parentAction = null;
 	public float reward =0;
 	public int timesvisited = 0;
 	
 	
-	Node(char[] state){
+	Node(Game state){
 		this.state = state;
 	}
 }

@@ -1,4 +1,4 @@
-package qlearning.tutorial;
+package oslo.qlearning.tutorial;
 import java.util.Random;
 import java.util.Arrays;
 import java.util.HashMap;

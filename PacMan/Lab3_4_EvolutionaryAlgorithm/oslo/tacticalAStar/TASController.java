@@ -1,4 +1,4 @@
-package tacticalAStar;
+package oslo.tacticalAStar;
 import pacman.controllers.Controller;
 import pacman.game.Constants.MOVE;
 import pacman.game.internal.Node;

@@ -1,4 +1,4 @@
-package mcts.tutorial;
+package oslo.mcts.tutorial;
 
 /**
  * Class used to store and control the maze

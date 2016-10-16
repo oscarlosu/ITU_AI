@@ -1,4 +1,4 @@
-package mcts.tutorial;
+package oslo.mcts.tutorial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

@@ -1,4 +1,4 @@
-package mcts;
+package oslo.mcts;
 
 import java.util.EnumMap;
 import java.util.Random;

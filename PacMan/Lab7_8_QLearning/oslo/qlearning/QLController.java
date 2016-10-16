@@ -1,4 +1,4 @@
-package qlearning;
+package oslo.qlearning;
 
 import java.awt.Color;
 import java.util.ArrayList;

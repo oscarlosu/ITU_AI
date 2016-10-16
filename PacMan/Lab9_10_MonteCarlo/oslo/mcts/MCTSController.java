@@ -1,4 +1,4 @@
-package mcts;
+package oslo.mcts;
 
 import pacman.controllers.Controller;
 import pacman.game.Constants.MOVE;

@@ -1,4 +1,4 @@
-package evolution;
+package tacticalAStar.evolution;
 
 import static pacman.game.Constants.DELAY;
 
@@ -181,7 +181,7 @@ public class ArtificialEvolution {
 		}
 	}
 	
-	private int sampleBoundedHalfNormal(Random rng, int bound) {
+	public static int sampleBoundedHalfNormal(Random rng, int bound) {
 		// Debug
 		int counter = 0;
 		
@@ -204,6 +204,31 @@ public class ArtificialEvolution {
 		}
 		
 		return index;
+	}
+	
+	public static double sampleBoundedHalfNormal(Random rng, double bound) {
+		// Debug
+		int counter = 0;
+		
+		double val = 0;
+		// 3 times the standard deviation ~ 99.7% of population
+		double sdx3 = 3.0;
+		// Sample until we get a valid result
+		do {
+			double sample = Math.abs(rng.nextGaussian()) / sdx3; // ~ range [0, 1]
+			val = (sample * (bound - 1)); // ~ range [0, bound)
+			counter++;
+			if(counter > 2) {
+				System.out.println("sampleBoundedHalfNormal required " + counter + " attempts");
+			}
+		} while(val >= bound);
+		
+		// Debug
+		if(counter > 2) {
+			System.out.println("sampleBoundedHalfNormal required " + counter + " attempts");
+		}
+		
+		return val;
 	}
 
 }

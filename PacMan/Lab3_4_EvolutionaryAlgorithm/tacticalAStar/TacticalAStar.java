@@ -38,6 +38,10 @@ public class TacticalAStar {
 	@Expose
 	private double powerPillCostGrowth;
 	@Expose
+	private double ppPenalty;
+	@Expose
+	private double ppReward;
+	@Expose
 	private double pillCost;
 	@Expose
 	private double pillCostDecline;
@@ -45,6 +49,8 @@ public class TacticalAStar {
 	private double ghostCost;
 	@Expose
 	private double ghostInfluenceDecay;
+	
+	
 	
 	
 	
@@ -60,6 +66,8 @@ public class TacticalAStar {
 	public static double defaultEdibleGhostInfluenceDecay = 0.01;
 	public static double defaultEdibleGhostDistanceDecline = 0.01;
 	public static double defaultPowerPillCost = 5;
+	public static double defaultPpPenalty = 100;
+	public static double defaultPpReward = 100;
 	public static double defaultPowerPillCostGrowth = 0.1;
 	public static double defaultPillCost = 50;
 	public static double defaultPillCostDecline = 0.1;
@@ -71,11 +79,13 @@ public class TacticalAStar {
 	public TacticalAStar() {
 	}
 	
-	public TacticalAStar(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double edibleGhostDistanceDecline, double powerPillCost, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
+	public TacticalAStar(double maxGameCost, double edibleGhostCost, double edibleGhostInfluenceDecay, double edibleGhostDistanceDecline, double powerPillCost, double ppPenalty, double ppReward, double powerPillCostGrowth, double pillCost, double pillCostDecline, double ghostCost, double ghostInfluenceDecay) {
 		this.maxGameCost = maxGameCost;
 		this.edibleGhostCost = edibleGhostCost;
 		this.edibleGhostInfluenceDecay = edibleGhostInfluenceDecay;
 		this.powerPillCost = powerPillCost;
+		this.ppPenalty = ppPenalty;
+		this.ppReward = ppReward;
 		this.powerPillCostGrowth = powerPillCostGrowth;
 		this.pillCost = pillCost;
 		this.pillCostDecline = pillCostDecline;
@@ -95,12 +105,16 @@ public class TacticalAStar {
 		double goodGhosts = 0;
 		for(GHOST g : GHOST.values()) {
 			int ghostIndex = game.getGhostCurrentNodeIndex(g);
+			
+//			if(ghostIndex == nodeIndex) {
+//				System.out.println(g + " at " + ghostIndex);
+//			}
 			boolean edible = game.isGhostEdible(g);
 			if(edible) {
 				double distToGhost = game.getShortestPathDistance(nodeIndex, ghostIndex);
 				double distToPacman = game.getShortestPathDistance(nodeIndex, game.getPacmanCurrentNodeIndex());
-				//double edibleGhostContribution = - Math.pow(influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost), - distToPacman * edibleGhostDistanceDecline);
-				double edibleGhostContribution = - influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost);
+				//double edibleGhostContribution = - influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost) / (distToPacman * edibleGhostDistanceDecline);
+				double edibleGhostContribution = - influenceCost(influenceCost(edibleGhostCost, edibleGhostInfluenceDecay, distToGhost), edibleGhostDistanceDecline, distToPacman);
 				goodGhosts += edibleGhostContribution;
 			} else if (game.getGhostLairTime(g) <= 0) {
 				double distToGhost = game.getShortestPathDistance(nodeIndex, ghostIndex);
@@ -112,7 +126,14 @@ public class TacticalAStar {
 		double powerPills = 0;
 		int powerPillIndex = game.getPowerPillIndex(nodeIndex);
 		if(powerPillIndex != -1 && game.isPowerPillStillAvailable(powerPillIndex)) {
-			powerPills = - Math.pow(powerPillCost, badGhosts * powerPillCostGrowth);
+			//powerPills = - Math.pow(powerPillCost, badGhosts * powerPillCostGrowth);
+			if(badGhosts < ppPenalty) {
+				powerPills = ppPenalty - badGhosts;
+			} else {
+				powerPills = - ppReward * badGhosts;
+				System.out.println("reward");
+			}
+			
 		}
 		// Pills
 		double pills = 0;
@@ -472,6 +493,22 @@ public class TacticalAStar {
 
 	public void setEdibleGhostDistanceDecline(double edibleGhostDistanceDecline) {
 		this.edibleGhostDistanceDecline = edibleGhostDistanceDecline;
+	}
+
+	public double getPpPenalty() {
+		return ppPenalty;
+	}
+
+	public void setPpPenalty(double ppPenalty) {
+		this.ppPenalty = ppPenalty;
+	}
+
+	public double getPpReward() {
+		return ppReward;
+	}
+
+	public void setPpReward(double ppReward) {
+		this.ppReward = ppReward;
 	}
 	
 	

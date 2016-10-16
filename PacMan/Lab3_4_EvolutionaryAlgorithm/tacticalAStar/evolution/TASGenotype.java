@@ -1,4 +1,4 @@
-package evolution;
+package tacticalAStar.evolution;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -21,6 +21,8 @@ public class TASGenotype extends Genotype<TASController>{
 		genes.add(TacticalAStar.defaultEdibleGhostInfluenceDecay);
 		genes.add(TacticalAStar.defaultEdibleGhostDistanceDecline);
 		genes.add(TacticalAStar.defaultPowerPillCost);
+		genes.add(TacticalAStar.defaultPpPenalty);
+		genes.add(TacticalAStar.defaultPpReward);
 		genes.add(TacticalAStar.defaultPowerPillCostGrowth);
 		genes.add(TacticalAStar.defaultPillCost);
 		genes.add(TacticalAStar.defaultPillCostDecline);
@@ -38,6 +40,8 @@ public class TASGenotype extends Genotype<TASController>{
 		genes.add(map.getEdibleGhostInfluenceDecay());
 		genes.add(map.getEdibleGhostDistanceDecline());
 		genes.add(map.getPowerPillCost());
+		genes.add(map.getPpPenalty());
+		genes.add(map.getPpReward());
 		genes.add(map.getPowerPillCostGrowth());
 		genes.add(map.getPillCost());
 		genes.add(map.getPillCostDecline());
@@ -54,7 +58,7 @@ public class TASGenotype extends Genotype<TASController>{
 	}
 	@Override
 	public TASController BuildPhenotype() {
-		TacticalAStar map = new TacticalAStar(genes.get(0), genes.get(1), genes.get(2), genes.get(3), genes.get(4), genes.get(5), genes.get(6), genes.get(7), genes.get(8), genes.get(9));
+		TacticalAStar map = new TacticalAStar(genes.get(0), genes.get(1), genes.get(2), genes.get(3), genes.get(4), genes.get(5), genes.get(6), genes.get(7), genes.get(8), genes.get(9), genes.get(10), genes.get(11));
 		return new TASController(map);
 	}
 	@Override
@@ -62,10 +66,11 @@ public class TASGenotype extends Genotype<TASController>{
 		Random rng = new Random();
 		for(int i = 0; i < genes.size(); ++i) {
 			if(rng.nextDouble() < geneMutationChance) {
-				// Mutation factor from gaussian distribution in range [lower, upper]
+				// Mutation factor from half-gaussian distribution in range [lower, upper]
 				double originalValue = genes.get(i);
-				double mutationFactor = Math.abs(rng.nextGaussian());
-				mutationFactor = Math.abs(lower + mutationFactor * (upper - lower));
+//				double mutationFactor = Math.abs(rng.nextGaussian());
+//				mutationFactor = Math.abs(lower + mutationFactor * (upper - lower));
+				double mutationFactor = lower + ArtificialEvolution.sampleBoundedHalfNormal(rng, upper - lower);
 				double newValue = mutationFactor * originalValue;
 				genes.set(i, newValue);
 			}			
@@ -77,8 +82,7 @@ public class TASGenotype extends Genotype<TASController>{
 		TASGenotype child = new TASGenotype();
 		Random rng = new Random();
 		for(int i = 0; i < genes.size(); ++i) {
-				double crossoverFactor = Math.abs(rng.nextGaussian());
-				double newValue = Lerp(this.genes.get(i), other.GetGenes().get(i), crossoverFactor);
+				double newValue = rng.nextDouble() < 0.5 ? this.genes.get(i) : other.GetGenes().get(i);
 				child.GetGenes().add(newValue);		
 		}
 		return child;
